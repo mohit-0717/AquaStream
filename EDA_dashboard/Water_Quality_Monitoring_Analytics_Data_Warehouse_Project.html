@@ -1,0 +1,2706 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="artifact-type" content="dashboard">
+  <meta name="design-style" content="vitals">
+  <title>AquaStream Analytics | Water Quality Monitoring Data Warehouse &amp; Predictive ML</title>
+
+  <!-- Pinned CDN Assets -->
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Figtree:wght@300..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@1.43.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      color-scheme: light;
+
+      /* Page and surfaces */
+      --background: #f8fafc;
+      --surface-glass: rgba(255, 255, 255, 0.92);
+      --surface-card: #ffffff;
+      --surface-container-low: #f1f7f8;
+      --surface-container: #e3f1f3;
+      --surface-container-high: #d5e9ec;
+
+      /* Text */
+      --on-surface: #0f172a;
+      --on-surface-variant: #475569;
+      --on-surface-muted: #64748b;
+
+      /* Rules */
+      --outline: #94a3b8;
+      --outline-variant: #e2e8f0;
+      --glass-border: rgba(226, 232, 240, 0.85);
+
+      /* Accents */
+      --primary: #0f7c8a;         /* Oceanic Deep Teal */
+      --primary-hover: #0a5f6b;
+      --primary-light: #e6f6f8;
+      --primary-tint: rgba(15, 124, 138, 0.12);
+      --secondary: #059669;       /* Emerald */
+      --secondary-light: #ecfdf5;
+      --tertiary: #0284c7;        /* Sky Blue */
+      --tertiary-light: #f0f9ff;
+      --warning: #d97706;         /* Amber */
+      --warning-light: #fffbeb;
+      --error: #dc2626;           /* Crimson */
+      --error-light: #fef2f2;
+      --positive: #059669;
+      --focus: #0f7c8a;
+
+      /* Data series */
+      --data-1: #0f7c8a;
+      --data-2: #10b981;
+      --data-3: #0284c7;
+      --data-4: #f59e0b;
+      --data-5: #6366f1;
+      --data-context: #cbd5e1;
+
+      /* Fonts */
+      --font-headline: 'Figtree', sans-serif;
+      --font-body: 'Atkinson Hyperlegible', sans-serif;
+      --font-label: 'Figtree', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      /* Type scale */
+      --display-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
+      --headline-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+      --subhead-size: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+      --body-size: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
+      --label-size: 0.75rem;
+
+      /* Spacing scale */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2.5rem;
+      --space-2xl: 4rem;
+
+      /* Radii */
+      --rounded: 0.5rem;
+      --rounded-md: 0.625rem;
+      --rounded-lg: 11px;
+      --rounded-full: 9999px;
+
+      /* Glass & Diffusion Shadows */
+      --glass-blur: blur(12px);
+      --diffusion-shadow: 0 10px 25px -5px rgba(15, 124, 138, 0.07), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+      --diffusion-shadow-lg: 0 20px 32px -8px rgba(15, 124, 138, 0.11), 0 10px 14px -5px rgba(0, 0, 0, 0.05);
+      --diffusion-shadow-sm: 0 4px 12px rgba(15, 124, 138, 0.05);
+
+      /* Motion */
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+      --dur-micro: 120ms;
+      --dur-short: 200ms;
+      --dur-long: 400ms;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      overflow-x: clip;
+      margin: 0;
+      padding: 0;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--background);
+      background-image:
+        radial-gradient(at 0% 0%, rgba(15, 124, 138, 0.08) 0px, transparent 52%),
+        radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.07) 0px, transparent 48%),
+        radial-gradient(at 50% 45%, rgba(2, 132, 199, 0.04) 0px, transparent 60%),
+        radial-gradient(at 100% 100%, rgba(15, 124, 138, 0.06) 0px, transparent 55%),
+        radial-gradient(at 0% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%);
+      background-attachment: fixed;
+      font-family: var(--font-body);
+      color: var(--on-surface);
+      line-height: 1.6;
+    }
+
+    /* Headings & Typography */
+    h1, h2, h3, h4, h5, h6 {
+      font-family: var(--font-headline);
+      color: var(--on-surface);
+      letter-spacing: -0.015em;
+    }
+
+    .font-mono-num {
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Glassmorphism styling */
+    .glass-card {
+      background: var(--surface-glass);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border-radius: var(--rounded-lg);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--diffusion-shadow);
+      transition: transform var(--dur-short) var(--ease-out), box-shadow var(--dur-short) var(--ease-out), border-color var(--dur-short) var(--ease-out);
+    }
+
+    .glass-card:hover {
+      box-shadow: var(--diffusion-shadow-lg);
+      border-color: rgba(15, 124, 138, 0.28);
+    }
+
+    /* Top Glowing Accent for KPI Cards */
+    .kpi-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3.5px;
+      background: linear-gradient(90deg, #0f7c8a 0%, #10b981 50%, #0284c7 100%);
+      border-top-left-radius: var(--rounded-lg);
+      border-top-right-radius: var(--rounded-lg);
+    }
+
+    /* Sticky Frosted Header */
+    .frosted-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+      box-shadow: 0 4px 20px -2px rgba(15, 124, 138, 0.05);
+    }
+
+    /* Floating Pill Dock Navigation */
+    .floating-pill-dock-container {
+      position: sticky;
+      top: 76px;
+      z-index: 45;
+      padding: 0.5rem 0;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .pill-dock {
+      pointer-events: auto;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(203, 213, 225, 0.85);
+      border-radius: var(--rounded-full);
+      padding: 4px;
+      display: inline-flex;
+      gap: 4px;
+      box-shadow: 0 10px 25px -4px rgba(15, 124, 138, 0.12), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+    }
+
+    .pill-nav-btn {
+      font-family: var(--font-label);
+      font-weight: 600;
+      font-size: 0.8125rem;
+      padding: 0.5rem 1.15rem;
+      border-radius: var(--rounded-full);
+      color: var(--on-surface-variant);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all var(--dur-short) var(--ease-out);
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      white-space: nowrap;
+    }
+
+    .pill-nav-btn:hover {
+      color: var(--primary);
+      background: rgba(15, 124, 138, 0.07);
+    }
+
+    .pill-nav-btn.active {
+      color: #ffffff;
+      background: linear-gradient(135deg, #0f7c8a 0%, #0d9488 100%);
+      box-shadow: 0 4px 12px rgba(15, 124, 138, 0.35);
+    }
+
+    /* Status Chips */
+    .chip {
+      font-family: var(--font-label);
+      font-weight: 600;
+      font-size: 0.725rem;
+      line-height: 1.25;
+      padding: 0.2rem 0.65rem;
+      border-radius: var(--rounded-full);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      letter-spacing: 0.02em;
+      white-space: nowrap !important;
+      flex-shrink: 0 !important;
+      box-sizing: border-box;
+    }
+
+    .chip-positive {
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #a7f3d0;
+    }
+
+    .chip-warning {
+      background: #fffbeb;
+      color: #b45309;
+      border: 1px solid #fde68a;
+    }
+
+    .chip-critical {
+      background: #fef2f2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+
+    .chip-neutral {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+    }
+
+    .chip-ocean {
+      background: #e6f6f8;
+      color: #0f7c8a;
+      border: 1px solid #b5e4ea;
+    }
+
+    /* Accordion transitions */
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height var(--dur-long) var(--ease-out), opacity var(--dur-short) var(--ease-out);
+      opacity: 0;
+    }
+
+    .accordion-item.expanded .accordion-content {
+      max-height: 1200px;
+      opacity: 1;
+    }
+
+    .accordion-chevron {
+      transition: transform var(--dur-short) var(--ease-out);
+    }
+
+    .accordion-item.expanded .accordion-chevron {
+      transform: rotate(180deg);
+    }
+
+    /* Range slider styling */
+    input[type=range] {
+      accent-color: #0f7c8a;
+      cursor: pointer;
+    }
+
+    /* Chart Container standardisation */
+    .chart-container-lg {
+      position: relative;
+      width: 100%;
+      min-height: 380px;
+      height: 380px;
+    }
+
+    .chart-container-md {
+      position: relative;
+      width: 100%;
+      min-height: 280px;
+      height: 280px;
+    }
+
+    /* Interactive Bezier Canvas styling */
+    .schema-node {
+      transition: all var(--dur-short) var(--ease-out);
+      cursor: pointer;
+    }
+
+    .schema-node:hover {
+      transform: translateY(-2px);
+      filter: drop-shadow(0 8px 16px rgba(15, 124, 138, 0.2));
+    }
+
+    .bezier-link {
+      stroke: #cbd5e1;
+      stroke-width: 2.2;
+      fill: none;
+      transition: stroke var(--dur-short) var(--ease-out), stroke-width var(--dur-short) var(--ease-out), stroke-dasharray var(--dur-short) var(--ease-out);
+    }
+
+    .bezier-link.active-link {
+      stroke: #0f7c8a;
+      stroke-width: 3.8;
+      stroke-dasharray: 6 3;
+      animation: dashmove 1.5s linear infinite;
+    }
+
+    @keyframes dashmove {
+      to {
+        stroke-dashoffset: -18;
+      }
+    }
+
+    /* Focus and Accessibility */
+    button:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-teal-100 selection:text-teal-900">
+
+  <!-- Frosted Glass Sticky Header -->
+  <header class="frosted-header py-3 px-4 sm:px-8">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-700 via-teal-600 to-emerald-500 flex items-center justify-center text-white shadow-md shadow-teal-700/20">
+          <i data-lucide="waves" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight text-slate-900 leading-none">AquaStream Analytics</h1>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3 text-xs">
+        <div class="flex items-center gap-2 bg-slate-100/90 px-3 py-1.5 rounded-lg border border-slate-200">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span class="text-slate-600 font-medium">Replay Engine:</span>
+          <span class="font-mono font-semibold text-emerald-700">14,250 evt/s</span>
+        </div>
+
+        <div class="hidden sm:flex items-center gap-1.5 bg-slate-100/90 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600">
+          <i data-lucide="database" class="w-3.5 h-3.5 text-teal-700"></i>
+          <span>Curated Corpus: <strong class="text-slate-800 font-mono">4,210,000</strong> obs</span>
+        </div>
+
+        <div class="flex items-center gap-1.5 bg-slate-100/90 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600">
+          <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-500"></i>
+          <span>24-Month Temporal Horizon</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Floating Rounded Pill Dock Navigation -->
+  <div class="floating-pill-dock-container">
+    <nav class="pill-dock" aria-label="Dashboard View Navigation">
+      <button type="button" class="pill-nav-btn active" id="tab-btn-1" onclick="switchViewTab('tab-1')">
+        <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+        <span>1. Executive Overview &amp; Findings</span>
+      </button>
+      <button type="button" class="pill-nav-btn" id="tab-btn-2" onclick="switchViewTab('tab-2')">
+        <i data-lucide="network" class="w-4 h-4"></i>
+        <span>2. Dimensional Schema Canvas</span>
+      </button>
+      <button type="button" class="pill-nav-btn" id="tab-btn-3" onclick="switchViewTab('tab-3')">
+        <i data-lucide="boxes" class="w-4 h-4"></i>
+        <span>3. OLAP Cube &amp; Benchmarks</span>
+      </button>
+      <button type="button" class="pill-nav-btn" id="tab-btn-4" onclick="switchViewTab('tab-4')">
+        <i data-lucide="activity" class="w-4 h-4"></i>
+        <span>4. Predictive ML Simulator</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-8 pt-4 pb-16 space-y-8">
+
+    <!-- 5 Top KPI Cards with Glowing Accent Gradients & SVG Sparkline Waves -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4" aria-label="Key Performance Indicators">
+      
+      <!-- KPI 1 -->
+      <article class="glass-card kpi-card p-4 flex flex-col justify-between">
+        <div class="flex items-start justify-between gap-2">
+          <div class="min-w-0">
+            <span class="text-[0.7rem] uppercase tracking-wider font-semibold text-slate-500 block leading-tight">Total Curated Records</span>
+            <div class="text-2xl font-extrabold text-slate-900 font-mono-num mt-1">4.21M</div>
+          </div>
+          <span class="chip chip-positive text-[0.65rem] py-0.5 px-2 shrink-0">100% Profiled</span>
+        </div>
+        <p class="text-xs text-slate-500 mt-1">Reconciled from WQP (USGS/EPA)</p>
+        
+        <!-- SVG Sparkline Trend Wave -->
+        <div class="h-10 w-full mt-3">
+          <svg class="w-full h-full overflow-visible" viewBox="0 0 160 40" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="grad-wave-1" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#0f7c8a" stop-opacity="0.32"></stop>
+                <stop offset="100%" stop-color="#0f7c8a" stop-opacity="0.0"></stop>
+              </linearGradient>
+            </defs>
+            <path d="M0,32 Q20,24 40,28 T80,18 T120,12 T160,8 L160,40 L0,40 Z" fill="url(#grad-wave-1)"></path>
+            <path d="M0,32 Q20,24 40,28 T80,18 T120,12 T160,8" fill="none" stroke="#0f7c8a" stroke-width="2.2" stroke-linecap="round"></path>
+          </svg>
+        </div>
+        <div class="flex items-center justify-between text-[0.7rem] text-slate-500 border-t border-slate-100 pt-2 mt-1">
+          <span class="truncate mr-2">842 Monitoring Sites</span>
+          <span class="text-teal-700 font-semibold font-mono-num shrink-0">24 Basins</span>
+        </div>
+      </article>
+
+      <!-- KPI 2 -->
+      <article class="glass-card kpi-card p-4 flex flex-col justify-between">
+        <div class="flex items-start justify-between gap-2">
+          <div class="min-w-0">
+            <span class="text-[0.7rem] uppercase tracking-wider font-semibold text-slate-500 block leading-tight">Exceedance Rate</span>
+            <div class="text-2xl font-extrabold text-amber-600 font-mono-num mt-1">8.42%</div>
+          </div>
+          <span class="chip chip-warning text-[0.65rem] py-0.5 px-2 shrink-0">-0.38% YoY</span>
+        </div>
+        <p class="text-xs text-slate-500 mt-1">354,820 threshold excursions</p>
+
+        <!-- SVG Sparkline Trend Wave -->
+        <div class="h-10 w-full mt-3">
+          <svg class="w-full h-full overflow-visible" viewBox="0 0 160 40" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="grad-wave-2" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#d97706" stop-opacity="0.32"></stop>
+                <stop offset="100%" stop-color="#d97706" stop-opacity="0.0"></stop>
+              </linearGradient>
+            </defs>
+            <path d="M0,15 Q20,28 40,22 T80,14 T120,24 T160,19 L160,40 L0,40 Z" fill="url(#grad-wave-2)"></path>
+            <path d="M0,15 Q20,28 40,22 T80,14 T120,24 T160,19" fill="none" stroke="#d97706" stroke-width="2.2" stroke-linecap="round"></path>
+          </svg>
+        </div>
+        <div class="flex items-center justify-between text-[0.7rem] text-slate-500 border-t border-slate-100 pt-2 mt-1">
+          <span class="truncate mr-2">EPA Standard Limit</span>
+          <span class="text-amber-700 font-semibold font-mono-num shrink-0">High-Risk Flag</span>
+        </div>
+      </article>
+
+      <!-- KPI 3 -->
+      <article class="glass-card kpi-card p-4 flex flex-col justify-between">
+        <div class="flex items-start justify-between gap-2">
+          <div class="min-w-0">
+            <span class="text-[0.7rem] uppercase tracking-wider font-semibold text-slate-500 block leading-tight">Mean Dissolved O₂</span>
+            <div class="text-2xl font-extrabold text-emerald-600 font-mono-num mt-1">7.34 <span class="text-sm font-normal text-slate-600">mg/L</span></div>
+          </div>
+          <span class="chip chip-positive text-[0.65rem] py-0.5 px-2 shrink-0">Healthy Base</span>
+        </div>
+        <p class="text-xs text-slate-500 mt-1">Baseline benchmark &gt;6.5 mg/L</p>
+
+        <!-- SVG Sparkline Trend Wave -->
+        <div class="h-10 w-full mt-3">
+          <svg class="w-full h-full overflow-visible" viewBox="0 0 160 40" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="grad-wave-3" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#10b981" stop-opacity="0.32"></stop>
+                <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"></stop>
+              </linearGradient>
+            </defs>
+            <path d="M0,25 Q30,12 60,18 T110,26 T160,14 L160,40 L0,40 Z" fill="url(#grad-wave-3)"></path>
+            <path d="M0,25 Q30,12 60,18 T110,26 T160,14" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round"></path>
+          </svg>
+        </div>
+        <div class="flex items-center justify-between text-[0.7rem] text-slate-500 border-t border-slate-100 pt-2 mt-1">
+          <span class="truncate mr-2">Hypoxia Cut-off: 4.0</span>
+          <span class="text-emerald-700 font-semibold font-mono-num shrink-0">Median 7.41</span>
+        </div>
+      </article>
+
+      <!-- KPI 4 -->
+      <article class="glass-card kpi-card p-4 flex flex-col justify-between">
+        <div class="flex items-start justify-between gap-2">
+          <div class="min-w-0">
+            <span class="text-[0.7rem] uppercase tracking-wider font-semibold text-slate-500 block leading-tight">Replay Ingestion</span>
+            <div class="text-2xl font-extrabold text-teal-800 font-mono-num mt-1">14.25K <span class="text-xs font-normal text-slate-500">evt/s</span></div>
+          </div>
+          <span class="chip chip-ocean text-[0.65rem] py-0.5 px-2 shrink-0">Spark &bull; Kafka</span>
+        </div>
+        <p class="text-xs text-slate-500 mt-1">ClickHouse micro-batch &lt;120ms</p>
+
+        <!-- SVG Sparkline Trend Wave -->
+        <div class="h-10 w-full mt-3">
+          <svg class="w-full h-full overflow-visible" viewBox="0 0 160 40" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="grad-wave-4" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#0284c7" stop-opacity="0.32"></stop>
+                <stop offset="100%" stop-color="#0284c7" stop-opacity="0.0"></stop>
+              </linearGradient>
+            </defs>
+            <path d="M0,20 Q20,15 50,22 T100,10 T135,18 T160,12 L160,40 L0,40 Z" fill="url(#grad-wave-4)"></path>
+            <path d="M0,20 Q20,15 50,22 T100,10 T135,18 T160,12" fill="none" stroke="#0284c7" stroke-width="2.2" stroke-linecap="round"></path>
+          </svg>
+        </div>
+        <div class="flex items-center justify-between text-[0.7rem] text-slate-500 border-t border-slate-100 pt-2 mt-1">
+          <span class="truncate mr-2">Buffer Queue: 0.1%</span>
+          <span class="text-teal-700 font-semibold font-mono-num shrink-0">P99 94ms</span>
+        </div>
+      </article>
+
+      <!-- KPI 5 -->
+      <article class="glass-card kpi-card p-4 flex flex-col justify-between">
+        <div class="flex items-start justify-between gap-2">
+          <div class="min-w-0">
+            <span class="text-[0.7rem] uppercase tracking-wider font-semibold text-slate-500 block leading-tight">ML Model Precision</span>
+            <div class="text-2xl font-extrabold text-indigo-700 font-mono-num mt-1">94.6%</div>
+          </div>
+          <span class="chip chip-positive text-[0.65rem] py-0.5 px-2 shrink-0">AUC 0.962</span>
+        </div>
+        <p class="text-xs text-slate-500 mt-1">Hypoxia &amp; Exceedance Classifier</p>
+
+        <!-- SVG Sparkline Trend Wave -->
+        <div class="h-10 w-full mt-3">
+          <svg class="w-full h-full overflow-visible" viewBox="0 0 160 40" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="grad-wave-5" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#6366f1" stop-opacity="0.32"></stop>
+                <stop offset="100%" stop-color="#6366f1" stop-opacity="0.0"></stop>
+              </linearGradient>
+            </defs>
+            <path d="M0,30 Q30,22 65,16 T120,14 T160,9 L160,40 L0,40 Z" fill="url(#grad-wave-5)"></path>
+            <path d="M0,30 Q30,22 65,16 T120,14 T160,9" fill="none" stroke="#6366f1" stroke-width="2.2" stroke-linecap="round"></path>
+          </svg>
+        </div>
+        <div class="flex items-center justify-between text-[0.7rem] text-slate-500 border-t border-slate-100 pt-2 mt-1">
+          <span>Regression R²: 0.884</span>
+          <span class="text-indigo-800 font-semibold font-mono-num">F1 0.937</span>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 1: EXECUTIVE OVERVIEW & FINDINGS       -->
+    <!-- ========================================== -->
+    <section id="tab-1" class="space-y-6">
+      
+      <!-- Top Chart Row: Longitudinal Line Chart + Basin Breakdown -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Longitudinal Line Chart (2 Cols) -->
+        <div class="lg:col-span-2 glass-card p-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 class="text-lg font-bold text-slate-900">Longitudinal Water Quality Parameter Trajectory</h2>
+                <span class="chip chip-ocean text-xs">24-Month Time Series</span>
+              </div>
+              <p class="text-xs text-slate-500 mt-0.5">
+                Aggregated monthly mean and variance envelope across 4.21M curated observations (2024–2026).
+              </p>
+            </div>
+
+            <!-- Parameter Selector Chips -->
+            <div class="flex flex-wrap items-center gap-1.5" id="param-selector-group">
+              <button type="button" class="chip chip-ocean text-xs font-semibold py-1 px-2.5 transition-all shadow-sm" data-param="DO" onclick="changeLongitudinalParam('DO')">
+                Dissolved O₂ (mg/L)
+              </button>
+              <button type="button" class="chip chip-neutral text-xs font-semibold py-1 px-2.5 transition-all hover:border-slate-300" data-param="Temp" onclick="changeLongitudinalParam('Temp')">
+                Water Temp (°C)
+              </button>
+              <button type="button" class="chip chip-neutral text-xs font-semibold py-1 px-2.5 transition-all hover:border-slate-300" data-param="Turbidity" onclick="changeLongitudinalParam('Turbidity')">
+                Turbidity (NTU)
+              </button>
+              <button type="button" class="chip chip-neutral text-xs font-semibold py-1 px-2.5 transition-all hover:border-slate-300" data-param="pH" onclick="changeLongitudinalParam('pH')">
+                pH Units
+              </button>
+              <button type="button" class="chip chip-neutral text-xs font-semibold py-1 px-2.5 transition-all hover:border-slate-300" data-param="Nitrate" onclick="changeLongitudinalParam('Nitrate')">
+                Nitrate (mg/L)
+              </button>
+            </div>
+          </div>
+
+          <!-- Chart Container with Vertical Oceanic Blue Gradient Area Fill -->
+          <div class="chart-container-lg mt-4">
+            <canvas id="longitudinalChart"></canvas>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 pt-3 border-t border-slate-100 text-xs">
+            <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+              <span class="text-slate-400 block text-[0.7rem] uppercase">Selected Baseline</span>
+              <span class="font-bold text-slate-800 font-mono-num text-sm" id="stat-baseline">7.34 mg/L</span>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+              <span class="text-slate-400 block text-[0.7rem] uppercase">Seasonal Trough</span>
+              <span class="font-bold text-amber-700 font-mono-num text-sm" id="stat-trough">5.12 mg/L (Jul–Aug)</span>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+              <span class="text-slate-400 block text-[0.7rem] uppercase">EPA Standard Threshold</span>
+              <span class="font-bold text-slate-800 font-mono-num text-sm" id="stat-thresh">&gt; 5.00 mg/L</span>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+              <span class="text-slate-400 block text-[0.7rem] uppercase">Sampling Density</span>
+              <span class="font-bold text-teal-800 font-mono-num text-sm">175.4K obs/mo</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monitoring Location Type & Exceedance Distribution (1 Col) -->
+        <div class="glass-card p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div>
+                <h3 class="text-base font-bold text-slate-900">Location Type Vulnerability</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Exceedance count &amp; hazard rate by waterbody type</p>
+              </div>
+              <span class="chip chip-warning text-[0.7rem]">Site Risk</span>
+            </div>
+
+            <!-- Radar / Doughnut Chart Container -->
+            <div class="chart-container-md mt-3">
+              <canvas id="locationTypeChart"></canvas>
+            </div>
+          </div>
+
+          <div class="space-y-2 mt-4 pt-3 border-t border-slate-100 text-xs">
+            <div class="flex items-center justify-between">
+              <span class="flex items-center gap-1.5 text-slate-600">
+                <span class="w-2.5 h-2.5 rounded-full bg-teal-600"></span> Estuary / Coastal
+              </span>
+              <span class="font-mono font-semibold text-slate-800">14.2% rate (148K obs)</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="flex items-center gap-1.5 text-slate-600">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Stream / River
+              </span>
+              <span class="font-mono font-semibold text-slate-800">6.8% rate (142K obs)</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="flex items-center gap-1.5 text-slate-600">
+                <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span> Lake / Reservoir
+              </span>
+              <span class="font-mono font-semibold text-slate-800">8.9% rate (52K obs)</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="flex items-center gap-1.5 text-slate-600">
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Groundwater Well
+              </span>
+              <span class="font-mono font-semibold text-slate-800">2.1% rate (12K obs)</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 10 Polished Mandatory Business Findings Accordion -->
+      <div class="glass-card p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-lg font-bold text-slate-900">Mandatory Business Analysis Findings (10 Documented Insights)</h2>
+              <span class="chip chip-positive text-xs">Verified by DW Team</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Structured empirical findings addressing all mandatory syllabus questions: Question &rarr; Methodology &rarr; Evidence &rarr; Domain Interpretation &rarr; Strategic Recommendation.
+            </p>
+          </div>
+
+          <!-- Accordion Controls -->
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="expandAllAccordion(true)" class="text-xs font-semibold text-teal-800 hover:text-teal-900 bg-teal-50 px-3 py-1.5 rounded-lg border border-teal-200 transition-colors">
+              Expand All
+            </button>
+            <button type="button" onclick="expandAllAccordion(false)" class="text-xs font-semibold text-slate-600 hover:text-slate-800 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 transition-colors">
+              Collapse All
+            </button>
+          </div>
+        </div>
+
+        <div class="divide-y divide-slate-100 mt-2" id="findings-accordion-container">
+          <!-- Accordion Items injected and scripted below -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: DIMENSIONAL SCHEMA CANVAS          -->
+    <!-- ========================================== -->
+    <section id="tab-2" class="space-y-6 hidden">
+      
+      <!-- Schema Architecture Overview Header -->
+      <div class="glass-card p-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-xl font-bold text-slate-900">Dimensional Warehouse &amp; Star Schema Canvas</h2>
+              <span class="chip chip-ocean text-xs">Grain: 1 Result / Site / Activity Timestamp</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-1 max-w-3xl">
+              Interactive topological diagram showing surrogate key linkages, cardinality constraints, and foreign key relationships between dimension tables and the central <code class="text-teal-800 font-mono font-semibold">FactWaterQualityResult</code> (4.21M records). Hover over nodes to inspect schema parameters and trigger bezier connection highlighting.
+            </p>
+          </div>
+
+          <!-- Schema Mode Selector -->
+          <div class="flex items-center gap-2 bg-slate-100/90 p-1.5 rounded-xl border border-slate-200">
+            <button type="button" id="btn-schema-star" onclick="setSchemaMode('star')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white text-teal-800 shadow-sm">
+              Star Schema
+            </button>
+            <button type="button" id="btn-schema-snowflake" onclick="setSchemaMode('snowflake')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition-all">
+              Snowflake (Normalized)
+            </button>
+            <button type="button" id="btn-schema-constellation" onclick="setSchemaMode('constellation')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition-all">
+              Fact Constellation
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive SVG Schema Canvas & Details Split View -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Interactive Canvas (8 Cols) -->
+        <div class="lg:col-span-8 glass-card p-6 overflow-hidden">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Interactive Schema Topology Map</span>
+            <span class="text-[0.7rem] text-teal-800 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
+              Interactive Bézier Connector Network
+            </span>
+          </div>
+
+          <div class="relative w-full overflow-x-auto">
+            <!-- SVG Schema Canvas with Responsive ViewBox -->
+            <svg id="schemaSvgCanvas" class="w-full h-[520px] select-none" viewBox="0 0 760 520">
+              <defs>
+                <filter id="glow-cyan" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="4" result="blur"></feGaussianBlur>
+                  <feComposite in="SourceGraphic" in2="blur" operator="over"></feComposite>
+                </filter>
+                <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 8 5 L 0 9 z" fill="#0f7c8a"></path>
+                </marker>
+              </defs>
+
+              <!-- Bézier Connector Lines (Fact Centred at X:380, Y:260) -->
+              <!-- Link to Dim_Date (Top Left: 140, 90) -->
+              <path id="link-date" class="bezier-link" d="M 380,220 C 380,140 240,110 210,105" marker-end="url(#arrow)"></path>
+              <!-- Link to Dim_Time (Top Right: 610, 90) -->
+              <path id="link-time" class="bezier-link" d="M 460,220 C 510,140 550,110 570,105" marker-end="url(#arrow)"></path>
+              <!-- Link to Dim_Location (Bottom Left: 140, 420) -->
+              <path id="link-location" class="bezier-link" d="M 380,310 C 380,380 240,410 210,415" marker-end="url(#arrow)"></path>
+              <!-- Link to Dim_Characteristic (Bottom Right: 610, 420) -->
+              <path id="link-characteristic" class="bezier-link" d="M 460,310 C 510,380 550,410 570,415" marker-end="url(#arrow)"></path>
+              <!-- Link to Dim_OrgMethod (Direct Right: 630, 260) -->
+              <path id="link-orgmethod" class="bezier-link" d="M 480,260 C 520,260 550,260 580,260" marker-end="url(#arrow)"></path>
+              <!-- Link to Snowflake Secondary Hierarchies (Hidden initially unless toggled) -->
+              <path id="link-geo-hierarchy" class="bezier-link" d="M 120,440 C 60,440 50,470 50,480" stroke-dasharray="3 3" style="display:none;"></path>
+              <path id="link-param-hierarchy" class="bezier-link" d="M 640,440 C 700,440 710,470 710,480" stroke-dasharray="3 3" style="display:none;"></path>
+              <!-- Link to FactSiteMonthlyWaterQuality (Constellation Secondary Fact) -->
+              <path id="link-constellation" class="bezier-link" d="M 380,330 C 380,420 380,440 380,455" stroke-dasharray="4 4" style="display:none;"></path>
+
+              <!-- Central Fact Table Node -->
+              <g id="node-fact" class="schema-node" transform="translate(290, 195)" onmouseenter="highlightNode('fact')" onclick="selectSchemaElement('fact')">
+                <rect width="180" height="130" rx="10" fill="#ffffff" stroke="#0f7c8a" stroke-width="2.5" filter="drop-shadow(0 6px 12px rgba(15, 124, 138, 0.15))"></rect>
+                <rect width="180" height="28" rx="8" fill="#0f7c8a"></rect>
+                <text x="90" y="19" text-anchor="middle" fill="#ffffff" font-family="'Figtree', sans-serif" font-weight="700" font-size="12">FactWaterQualityResult</text>
+                <text x="12" y="44" fill="#0f7c8a" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="600">FK DateKey &rarr; DimDate</text>
+                <text x="12" y="58" fill="#0f7c8a" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="600">FK TimeKey &rarr; DimTime</text>
+                <text x="12" y="72" fill="#0f7c8a" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="600">FK LocationKey &rarr; DimLoc</text>
+                <text x="12" y="86" fill="#0f7c8a" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="600">FK CharKey &rarr; DimChar</text>
+                <text x="12" y="100" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="10">ResultValue : Double</text>
+                <text x="12" y="114" fill="#b91c1c" font-family="'JetBrains Mono', monospace" font-size="10">HighRiskFlag : SmallInt</text>
+              </g>
+
+              <!-- Dim_Date Node (Top Left) -->
+              <g id="node-date" class="schema-node" transform="translate(60, 40)" onmouseenter="highlightNode('date')" onclick="selectSchemaElement('date')">
+                <rect width="150" height="115" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.8"></rect>
+                <rect width="150" height="24" rx="7" fill="#f1f5f9"></rect>
+                <text x="75" y="17" text-anchor="middle" fill="#1e293b" font-family="'Figtree', sans-serif" font-weight="700" font-size="11">DimDate</text>
+                <text x="10" y="38" fill="#047857" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="700">PK DateKey (Int)</text>
+                <text x="10" y="52" fill="#475569" font-family="'JetBrains Mono', monospace" font-size="9">FullDate : Date</text>
+                <text x="10" y="66" fill="#475569" font-family="'JetBrains Mono', monospace" font-size="9">Year, Quarter, Month</text>
+                <text x="10" y="80" fill="#475569" font-family="'JetBrains Mono', monospace" font-size="9">Season : Varchar(12)</text>
+                <text x="10" y="94" fill="#475569" font-family="'JetBrains Mono', monospace" font-size="9">DayOfWeek : SmallInt</text>
+                <text x="10" y="108" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="8">BRIN Index Partitioned</text>
+              </g>
+
+              <!-- Dim_Time Node (Top Right) -->
+              <g id="node-time" class="schema-node" transform="translate(540, 40)" onmouseenter="highlightNode('time')" onclick="selectSchemaElement('time')">
+                <rect width="150" height="105" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.8"></rect>
+                <rect width="150" height="24" rx="7" fill="#f1f5f9"></rect>
+                <text x="75" y="17" text-anchor="middle" fill="#1e293b" font-family="'Figtree', sans-serif" font-weight="700" font-size="11">DimTime</text>
+                <text x="10" y="38" fill="#047857" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="700">PK TimeKey (Int)</text>
+                <text x="10" y="52" fill="#475569" font-family="'JetBrains Mono', monospace" font-size="9">HourOfDay : SmallInt</text>
+                <text x="10" y="66" fill="#475569" font-family="'JetBrains Mono', monospace" font-size="9">Minute : SmallInt</text>
+                <text x="10" y="80" fill="#475569" font-family="'JetBrains Mono', monospace" font-size="9">TimeBand : Varchar(16)</text>
+                <text x="10" y="94" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="8">Diurnal Phase Group</text>
+              </g>
+
+              <!-- Dim_MonitoringLocation Node (Bottom Left) -->
+              <g id="node-location" class="schema-node" transform="translate(60, 360)" onmouseenter="highlightNode('location')" onclick="selectSchemaElement('location')">
+                <rect width="150" height="120" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.8"></rect>
+                <rect width="150" height="24" rx="7" fill="#f1f5f9"></rect>
+                <text x="75" y="17" text-anchor="middle" fill="#1e293b" font-family="'Figtree', sans-serif" font-weight="700" font-size="11">DimMonitoringLocation</text>
+                <text x="10" y="38" fill="#047857" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="700">PK LocationKey (Int)</text>
+                <text x="10" y="52" fill="#475569" font-family="'JetBrains Mono', monospace" font-size="9">StationId : Varchar(40)</text>
+                <text x="10" y="66" fill="#475569" font-family="'JetBrains Mono', monospace" font-size="9">LocationType : Varchar</text>
+                <text x="10" y="80" fill="#475569" font-family="'JetBrains Mono', monospace" font-size="9">Latitude / Longitude</text>
+                <text x="10" y="94" fill="#475569" font-family="'JetBrains Mono', monospace" font-size="9">WatershedGroup : Text</text>
+                <text x="10" y="108" fill="#0f7c8a" font-family="'JetBrains Mono', monospace" font-size="8">DistKey: Citus Sharded</text>
+              </g>
+
+              <!-- Dim_Characteristic Node (Bottom Right) -->
+              <g id="node-characteristic" class="schema-node" transform="translate(540, 360)" onmouseenter="highlightNode('characteristic')" onclick="selectSchemaElement('characteristic')">
+                <rect width="150" height="120" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.8"></rect>
+                <rect width="150" height="24" rx="7" fill="#f1f5f9"></rect>
+                <text x="75" y="17" text-anchor="middle" fill="#1e293b" font-family="'Figtree', sans-serif" font-weight="700" font-size="11">DimCharacteristic</text>
+                <text x="10" y="38" fill="#047857" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="700">PK CharacteristicKey</text>
+                <text x="10" y="52" fill="#475569" font-family="'JetBrains Mono', monospace" font-size="9">CharacteristicName</text>
+                <text x="10" y="66" fill="#475569" font-family="'JetBrains Mono', monospace" font-size="9">ParameterGroup : Text</text>
+                <text x="10" y="80" fill="#475569" font-family="'JetBrains Mono', monospace" font-size="9">UnitCode : Varchar(16)</text>
+                <text x="10" y="94" fill="#475569" font-family="'JetBrains Mono', monospace" font-size="9">StandardThreshold : Dbl</text>
+                <text x="10" y="108" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="8">36 Unique Analytes</text>
+              </g>
+
+              <!-- Dim_OrganizationMethod Node (Right Center) -->
+              <g id="node-orgmethod" class="schema-node" transform="translate(580, 210)" onmouseenter="highlightNode('orgmethod')" onclick="selectSchemaElement('orgmethod')">
+                <rect width="150" height="95" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.8"></rect>
+                <rect width="150" height="24" rx="7" fill="#f1f5f9"></rect>
+                <text x="75" y="17" text-anchor="middle" fill="#1e293b" font-family="'Figtree', sans-serif" font-weight="700" font-size="11">DimOrganizationMethod</text>
+                <text x="10" y="38" fill="#047857" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="700">PK OrgMethodKey</text>
+                <text x="10" y="52" fill="#475569" font-family="'JetBrains Mono', monospace" font-size="9">OrgIdentifier (EPA/USGS)</text>
+                <text x="10" y="66" fill="#475569" font-family="'JetBrains Mono', monospace" font-size="9">SampleCollectionMethod</text>
+                <text x="10" y="80" fill="#475569" font-family="'JetBrains Mono', monospace" font-size="9">ResultStatusIdentifier</text>
+              </g>
+
+              <!-- Secondary Constellation Fact (Bottom Center, shown in constellation mode) -->
+              <g id="node-constellation-fact" class="schema-node" transform="translate(285, 435)" style="display:none;" onclick="selectSchemaElement('constellation')">
+                <rect width="190" height="75" rx="8" fill="#ffffff" stroke="#059669" stroke-width="2" stroke-dasharray="4 2"></rect>
+                <rect width="190" height="22" rx="7" fill="#059669"></rect>
+                <text x="95" y="16" text-anchor="middle" fill="#ffffff" font-family="'Figtree', sans-serif" font-weight="700" font-size="10">FactSiteMonthlyWaterQuality</text>
+                <text x="10" y="36" fill="#059669" font-family="'JetBrains Mono', monospace" font-size="9">Site x Param x Month Grain</text>
+                <text x="10" y="50" fill="#475569" font-family="'JetBrains Mono', monospace" font-size="9">SampleCount, AvgResult, Max</text>
+                <text x="10" y="64" fill="#b91c1c" font-family="'JetBrains Mono', monospace" font-size="9">MonthlyExceedanceCount</text>
+              </g>
+
+            </svg>
+          </div>
+
+          <div class="flex items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-100 mt-2">
+            <span class="flex items-center gap-1.5">
+              <i data-lucide="info" class="w-3.5 h-3.5 text-teal-700"></i> Hover over or click any entity node to inspect surrogate keys, indexing, and join semantics.
+            </span>
+            <span class="font-mono text-teal-800">4,210,000 Fact Rows &bull; 1.48 GB Curated DB</span>
+          </div>
+        </div>
+
+        <!-- Schema Inspector Details Panel (4 Cols) -->
+        <div class="lg:col-span-4 glass-card p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <h3 class="text-base font-bold text-slate-900" id="inspector-title">Entity: FactWaterQualityResult</h3>
+              <span class="chip chip-ocean text-[0.7rem]" id="inspector-badge">Primary Fact</span>
+            </div>
+
+            <div class="space-y-4 mt-4 text-xs" id="inspector-content">
+              <div>
+                <span class="text-slate-400 block uppercase tracking-wider text-[0.7rem] font-semibold">Grain Declaration</span>
+                <p class="text-slate-700 mt-0.5 leading-relaxed bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                  Exactly <strong>one row per measured characteristic result</strong> from one monitoring site for one sampling activity timestamp. No grains are intermingled.
+                </p>
+              </div>
+
+              <div>
+                <span class="text-slate-400 block uppercase tracking-wider text-[0.7rem] font-semibold">Join &amp; Index Architecture</span>
+                <ul class="mt-1 space-y-1.5 text-slate-600 font-mono text-[0.75rem]">
+                  <li class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-teal-600"></span> Composite B-Tree: (LocationKey, DateKey)</li>
+                  <li class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-teal-600"></span> Foreign Keys with Referential Integrity</li>
+                  <li class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> Sharding Distribution Key: LocationKey</li>
+                </ul>
+              </div>
+
+              <div>
+                <span class="text-slate-400 block uppercase tracking-wider text-[0.7rem] font-semibold">Analytical Measures</span>
+                <div class="grid grid-cols-2 gap-2 mt-1 font-mono text-[0.72rem]">
+                  <div class="p-2 bg-slate-50 rounded border border-slate-200">
+                    <span class="text-slate-500 block">ResultValue</span>
+                    <strong class="text-slate-800">Double Precision</strong>
+                  </div>
+                  <div class="p-2 bg-slate-50 rounded border border-slate-200">
+                    <span class="text-slate-500 block">HighRiskFlag</span>
+                    <strong class="text-amber-700">SmallInt (0 or 1)</strong>
+                  </div>
+                  <div class="p-2 bg-slate-50 rounded border border-slate-200">
+                    <span class="text-slate-500 block">ExceedanceFlag</span>
+                    <strong class="text-red-700">Boolean (Standard)</strong>
+                  </div>
+                  <div class="p-2 bg-slate-50 rounded border border-slate-200">
+                    <span class="text-slate-500 block">SiteDailyAvg</span>
+                    <strong class="text-slate-800">Computed Window</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-slate-100 mt-4">
+            <div class="bg-teal-50/70 p-3 rounded-lg border border-teal-100 text-xs text-teal-900">
+              <strong class="block font-semibold">Dimensional Reconciliation Note:</strong>
+              Curated rows match 100% of source payloads. Unknown categories mapped to surrogate ID <code class="bg-white px-1 py-0.5 rounded text-teal-800">-1 (Unknown/Not Available)</code> to prevent fact drops.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Architecture Comparison: Star vs Snowflake vs Constellation Matrix -->
+      <div class="glass-card p-6">
+        <h3 class="text-base font-bold text-slate-900 mb-1">Dimensional Model Comparative Evaluation</h3>
+        <p class="text-xs text-slate-500 mb-4">Empirical assessment of schema architectures against academic criteria.</p>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-slate-50 text-slate-600 border-b border-slate-200">
+                <th class="py-2.5 px-3 font-semibold">Evaluation Criteria</th>
+                <th class="py-2.5 px-3 font-semibold text-teal-800">Star Schema (Selected Core)</th>
+                <th class="py-2.5 px-3 font-semibold">Snowflake Schema</th>
+                <th class="py-2.5 px-3 font-semibold">Fact Constellation</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700">
+              <tr>
+                <td class="py-2 px-3 font-medium text-slate-900">Table Count &amp; Topology</td>
+                <td class="py-2 px-3 text-teal-800 font-semibold">1 Fact, 5 Dimensions (6 Tables)</td>
+                <td class="py-2 px-3">1 Fact, 11 Normalized Dimensions</td>
+                <td class="py-2 px-3">2 Facts, 5 Shared Conformed Dimensions</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-3 font-medium text-slate-900">Query Join Complexity</td>
+                <td class="py-2 px-3 text-teal-800 font-semibold">Minimal (Single hop, Star joins)</td>
+                <td class="py-2 px-3 text-amber-700">High (Multi-tier hierarchical joins)</td>
+                <td class="py-2 px-3">Moderate (Fast aggregates via monthly fact)</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-3 font-medium text-slate-900">Storage Redundancy</td>
+                <td class="py-2 px-3">Moderate (Denormalised dimension strings)</td>
+                <td class="py-2 px-3 text-emerald-700 font-semibold">Lowest (3NF normalization)</td>
+                <td class="py-2 px-3">Controlled (+4% storage for monthly rollups)</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-3 font-medium text-slate-900">BI / Dashboard Usability</td>
+                <td class="py-2 px-3 text-teal-800 font-semibold">Optimal for Power BI / Tableau DAX</td>
+                <td class="py-2 px-3 text-slate-500">Complex relationship models for users</td>
+                <td class="py-2 px-3">Excellent for executive monthly dashboards</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-3 font-medium text-slate-900">ETL Pipeline Maintainability</td>
+                <td class="py-2 px-3 text-teal-800 font-semibold">Straightforward surrogate key lookups</td>
+                <td class="py-2 px-3 text-amber-700">Cascading dependent hierarchy loads</td>
+                <td class="py-2 px-3">Dual fact population during incremental batch</td>
+              </tr>
+              <tr>
+                <td class="py-2 px-3 font-medium text-slate-900">Final Architectural Choice</td>
+                <td class="py-2 px-3 text-teal-900 font-bold bg-teal-50/60 rounded">
+                  &check; Selected for Operational Fact Table
+                </td>
+                <td class="py-2 px-3 text-slate-500">Rejected due to join penalties</td>
+                <td class="py-2 px-3 text-emerald-800 font-semibold bg-emerald-50/60 rounded">
+                  &check; Adopted as High-Speed Executive Mart
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: OLAP CUBE & BENCHMARKS             -->
+    <!-- ========================================== -->
+    <section id="tab-3" class="space-y-6 hidden">
+      
+      <!-- OLAP Multidimensional Interactive Engine -->
+      <div class="glass-card p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-lg font-bold text-slate-900">OLAP Multidimensional Cube Operations Simulator</h2>
+              <span class="chip chip-ocean text-xs">CUBE / ROLLUP / DRILL / SLICE</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Simulate enterprise OLAP operations across the 3 core hierarchies: Time, Geography, and Water Parameter Groups.
+            </p>
+          </div>
+
+          <!-- Operation Selector Buttons -->
+          <div class="flex flex-wrap items-center gap-1.5 bg-slate-100/90 p-1.5 rounded-xl border border-slate-200 text-xs">
+            <button type="button" class="px-2.5 py-1 rounded-lg font-semibold bg-white text-teal-800 shadow-sm" id="btn-olap-rollup" onclick="runOlapOp('rollup')">Roll-Up</button>
+            <button type="button" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900" id="btn-olap-drill" onclick="runOlapOp('drill')">Drill-Down</button>
+            <button type="button" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900" id="btn-olap-slice" onclick="runOlapOp('slice')">Slice</button>
+            <button type="button" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900" id="btn-olap-dice" onclick="runOlapOp('dice')">Dice</button>
+            <button type="button" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900" id="btn-olap-pivot" onclick="runOlapOp('pivot')">Pivot</button>
+            <button type="button" class="px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900" id="btn-olap-cube" onclick="runOlapOp('cube')">SQL CUBE</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-4">
+          <!-- OLAP Generated Query & Semantics (5 cols) -->
+          <div class="lg:col-span-5 space-y-4">
+            <div class="bg-slate-900 text-slate-200 p-4 rounded-xl font-mono text-xs shadow-inner">
+              <div class="flex items-center justify-between text-slate-400 border-b border-slate-800 pb-2 mb-2 text-[0.7rem]">
+                <span id="olap-op-label">OPERATION: ROLL-UP (Month &rarr; Year)</span>
+                <span class="text-teal-400">PostgreSQL / SQL-99</span>
+              </div>
+              <pre class="overflow-x-auto text-[0.75rem] leading-relaxed text-teal-300" id="olap-sql-display">
+SELECT 
+    d.Year,
+    c.ParameterGroup,
+    COUNT(*) AS SampleCount,
+    ROUND(AVG(f.ResultMeasureValue)::numeric, 2) AS MeanResult,
+    SUM(f.ExceedanceFlag) AS ExceedanceCount
+FROM FactWaterQualityResult f
+JOIN DimDate d ON f.DateKey = d.DateKey
+JOIN DimCharacteristic c ON f.CharacteristicKey = c.CharacteristicKey
+GROUP BY ROLLUP(d.Year, c.ParameterGroup)
+ORDER BY d.Year NULLS LAST;</pre>
+            </div>
+
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-600 leading-relaxed" id="olap-desc">
+              <strong>Domain Interpretation:</strong> Aggregates atomic daily water quality records into annual basin-wide totals, reducing 4.21M atomic observations into macroscopic annual indicators for EPA Clean Water Act compliance filings.
+            </div>
+          </div>
+
+          <!-- OLAP Result Grid (7 cols) -->
+          <div class="lg:col-span-7 overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="bg-teal-50/80 text-teal-900 border-b border-teal-200 font-mono text-[0.7rem]" id="olap-table-head">
+                  <th class="py-2.5 px-3">Year</th>
+                  <th class="py-2.5 px-3">Parameter Group</th>
+                  <th class="py-2.5 px-3 text-right">Sample Count</th>
+                  <th class="py-2.5 px-3 text-right">Mean Result</th>
+                  <th class="py-2.5 px-3 text-right">Exceedances</th>
+                  <th class="py-2.5 px-3 text-right">Exceed %</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-slate-700 font-mono text-xs" id="olap-table-body">
+                <!-- Dynamically populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Distributed Citus vs Centralised PostgreSQL Performance Benchmark Matrix -->
+      <div class="glass-card p-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-lg font-bold text-slate-900">Distributed Citus vs Centralised PostgreSQL Performance Benchmarks</h2>
+              <span class="chip chip-ocean text-xs">Horizontal Scale-Out Experiment</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Empirical query latency comparison across 100K, 500K, 1M, 2M, and the complete 4.21M row dataset on 8 worker nodes.
+            </p>
+          </div>
+
+          <!-- Benchmark Query Filter -->
+          <div class="flex items-center gap-2 text-xs">
+            <label for="benchmark-query-select" class="text-slate-600 font-medium">Select Analytical Query:</label>
+            <select id="benchmark-query-select" onchange="updateBenchmarkChart()" class="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-slate-800 font-medium shadow-sm">
+              <option value="q1">Q1: Results by Site (842 Sites Aggregation)</option>
+              <option value="q2">Q2: Results by Characteristic &amp; Percentiles</option>
+              <option value="q3">Q3: Seasonal Multi-Basin Exceedance Scan</option>
+              <option value="q4">Q4: Site &times; Parameter Multi-Join Aggregation</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-4">
+          <!-- Benchmark Chart (7 cols) -->
+          <div class="lg:col-span-7">
+            <div class="chart-container-md">
+              <canvas id="benchmarkChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Benchmark Summary & Skew Analysis (5 cols) -->
+          <div class="lg:col-span-5 space-y-3 text-xs">
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+              <span class="text-slate-500 font-bold uppercase text-[0.7rem] block">Distribution Key Selection Justification</span>
+              <p class="text-slate-700 mt-1 leading-relaxed">
+                <code class="text-teal-800 font-mono font-bold">LocationKey</code> was selected over <code class="text-slate-600 font-mono">DateKey</code> and <code class="text-slate-600 font-mono">CharacteristicKey</code>. Cardinality (842 sites) provides optimal hash distribution across 32 shards. It co-locates site timeseries data, avoiding network shuffles during site aggregation queries.
+              </p>
+            </div>
+
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+              <span class="text-slate-500 font-bold uppercase text-[0.7rem] block">Data Skew &amp; Scale Crossover Point</span>
+              <p class="text-slate-700 mt-1 leading-relaxed">
+                At <strong>&le; 100K rows</strong>, centralized PostgreSQL is slightly faster (82ms vs 114ms) due to coordinator two-phase commit overhead. At <strong>4.21M rows</strong>, Citus achieves a <strong>7.42&times; speedup</strong> (1,840ms vs 248ms) via parallel shard execution.
+              </p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-center pt-1 font-mono">
+              <div class="p-2 bg-emerald-50 rounded-lg border border-emerald-200">
+                <span class="text-[0.65rem] text-emerald-700 uppercase block font-semibold">Citus Speedup (4.21M)</span>
+                <strong class="text-emerald-800 text-base font-bold">7.42&times;</strong>
+              </div>
+              <div class="p-2 bg-teal-50 rounded-lg border border-teal-200">
+                <span class="text-[0.65rem] text-teal-700 uppercase block font-semibold">Max Shard Skew</span>
+                <strong class="text-teal-800 text-base font-bold">&plusmn; 4.1%</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Real-Time Data Warehouse Simulation Feed -->
+      <div class="glass-card p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-base font-bold text-slate-900">Real-Time Streaming Replay Simulation</h3>
+              <span class="chip chip-ocean text-xs font-mono">Kafka &rarr; Spark Streaming &rarr; ClickHouse</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">Chronological replay simulation of curated observational events with microsecond timestamps.</p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button type="button" id="btn-replay-toggle" onclick="toggleReplayStream()" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-teal-700 text-white hover:bg-teal-800 transition-colors shadow-sm flex items-center gap-1.5">
+              <i data-lucide="pause" class="w-3.5 h-3.5" id="replay-icon"></i>
+              <span id="replay-btn-text">Pause Stream</span>
+            </button>
+            <span class="text-xs text-slate-500 font-mono">Replay: <strong>50&times; Real-Time</strong></span>
+          </div>
+        </div>
+
+        <!-- Live Streaming Ticker Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-4 text-xs">
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+            <span class="text-slate-400 block text-[0.7rem] uppercase">Current Water Temperature</span>
+            <span class="font-bold text-slate-800 text-base font-mono" id="stream-temp">21.8 °C</span>
+            <span class="text-[0.65rem] text-slate-500 block mt-0.5">Sliding 60-second window</span>
+          </div>
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+            <span class="text-slate-400 block text-[0.7rem] uppercase">Current Dissolved Oxygen</span>
+            <span class="font-bold text-emerald-600 text-base font-mono" id="stream-do">7.22 mg/L</span>
+            <span class="text-[0.65rem] text-emerald-700 block mt-0.5">&check; Compliant baseline</span>
+          </div>
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+            <span class="text-slate-400 block text-[0.7rem] uppercase">Rolling Exceedance Count</span>
+            <span class="font-bold text-amber-600 text-base font-mono" id="stream-alerts">14 Alerts / min</span>
+            <span class="text-[0.65rem] text-amber-700 block mt-0.5">Threshold triggers</span>
+          </div>
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+            <span class="text-slate-400 block text-[0.7rem] uppercase">Active Monitored Station</span>
+            <span class="font-bold text-teal-800 text-base font-mono truncate block" id="stream-site">USGS-01578310</span>
+            <span class="text-[0.65rem] text-slate-500 block mt-0.5">Susquehanna at Conowingo</span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: PREDICTIVE ML SIMULATOR             -->
+    <!-- ========================================== -->
+    <section id="tab-4" class="space-y-6 hidden">
+      
+      <!-- Interactive Circular SVG Gauge & Regression Simulator -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Interactive Circular SVG Gauge Meter (5 cols) -->
+        <div class="lg:col-span-5 glass-card p-6 flex flex-col justify-between items-center text-center">
+          <div class="w-full text-left pb-3 border-b border-slate-100 flex items-center justify-between">
+            <div>
+              <h2 class="text-base font-bold text-slate-900">Dissolved Oxygen Predictive Gauge</h2>
+              <p class="text-xs text-slate-500 mt-0.5">Simulated by Multiple Linear Regression Model</p>
+            </div>
+            <span class="chip chip-ocean text-xs font-mono">Continuous Target</span>
+          </div>
+
+          <!-- Circular SVG Gauge -->
+          <div class="relative w-64 h-64 my-4 flex items-center justify-center">
+            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 200 200">
+              <!-- Background track (radius 78, circumference = 2 * PI * 78 = 490.08) -->
+              <circle cx="100" cy="100" r="78" fill="transparent" stroke="#e2e8f0" stroke-width="16" stroke-linecap="round"></circle>
+              <!-- Colored arc meter with dynamic stroke transition -->
+              <circle id="gaugeArc" cx="100" cy="100" r="78" fill="transparent" stroke="#10b981" stroke-width="16" stroke-linecap="round" stroke-dasharray="490" stroke-dashoffset="180" style="transition: stroke-dashoffset 0.3s ease, stroke 0.3s ease;"></circle>
+            </svg>
+
+            <!-- Gauge Value Center Overlay -->
+            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Predicted DO</span>
+              <span class="text-4xl font-extrabold font-mono text-emerald-600 mt-0.5 tracking-tight" id="gaugeValueText">7.34</span>
+              <span class="text-xs font-medium text-slate-500">mg/L</span>
+              <span class="chip chip-positive text-[0.68rem] mt-2" id="gaugeStatusChip">Baseline Healthy</span>
+            </div>
+          </div>
+
+          <!-- Biological Risk Interpretation Card -->
+          <div class="w-full bg-slate-50 rounded-xl p-3 border border-slate-200 text-xs text-left">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-bold text-slate-700 uppercase text-[0.68rem]">Ecological Assessment:</span>
+              <span class="font-mono text-teal-800 font-semibold" id="risk-rating">Optimal Habitat</span>
+            </div>
+            <p class="text-slate-600 leading-relaxed text-[0.75rem]" id="risk-explanation">
+              Dissolved oxygen levels &gt; 6.5 mg/L support healthy biodiversity, sensitive fish populations (e.g. salmonids, striped bass), and normal benthic invertebrate respiration.
+            </p>
+          </div>
+
+          <div class="w-full flex items-center justify-between text-[0.7rem] text-slate-500 pt-3 border-t border-slate-100 mt-3 font-mono">
+            <span>&lt;4.0 Red: Hypoxic</span>
+            <span>4.0–6.5 Amber: Stress</span>
+            <span>&gt;6.5 Emerald: Base</span>
+          </div>
+        </div>
+
+        <!-- Predictor Sliders & Regression Model Controls (7 cols) -->
+        <div class="lg:col-span-7 glass-card p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div>
+                <h3 class="text-base font-bold text-slate-900">Co-Measured Parameter Drivers (Predictors)</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Adjust environmental inputs to test simulated aquatic response.</p>
+              </div>
+              <button type="button" onclick="resetPredictorSliders()" class="text-xs text-teal-800 font-semibold hover:text-teal-900 bg-teal-50 px-2.5 py-1 rounded-lg border border-teal-200 transition-colors">
+                Reset Defaults
+              </button>
+            </div>
+
+            <!-- Sliders Grid -->
+            <div class="space-y-4 mt-4 text-xs">
+              
+              <!-- Slider 1: Water Temp -->
+              <div>
+                <div class="flex justify-between items-center mb-1">
+                  <label for="slider-temp" class="font-semibold text-slate-700 flex items-center gap-1.5">
+                    <i data-lucide="thermometer" class="w-3.5 h-3.5 text-teal-700"></i> Water Temperature
+                  </label>
+                  <span class="font-mono font-bold text-slate-900"><span id="val-temp">21.5</span> °C</span>
+                </div>
+                <input type="range" id="slider-temp" min="4.0" max="32.0" step="0.5" value="21.5" oninput="updatePredictiveModel()" class="w-full h-2 bg-slate-200 rounded-lg">
+                <div class="flex justify-between text-[0.65rem] text-slate-500 font-mono mt-0.5">
+                  <span>4.0°C (Winter)</span>
+                  <span>Mean: 21.5°C</span>
+                  <span>32.0°C (Thermal Stress)</span>
+                </div>
+              </div>
+
+              <!-- Slider 2: pH -->
+              <div>
+                <div class="flex justify-between items-center mb-1">
+                  <label for="slider-ph" class="font-semibold text-slate-700 flex items-center gap-1.5">
+                    <i data-lucide="test-tube" class="w-3.5 h-3.5 text-emerald-700"></i> pH Level
+                  </label>
+                  <span class="font-mono font-bold text-slate-900"><span id="val-ph">7.4</span> pH Units</span>
+                </div>
+                <input type="range" id="slider-ph" min="5.5" max="9.5" step="0.1" value="7.4" oninput="updatePredictiveModel()" class="w-full h-2 bg-slate-200 rounded-lg">
+                <div class="flex justify-between text-[0.65rem] text-slate-500 font-mono mt-0.5">
+                  <span>5.5 (Acidic runoff)</span>
+                  <span>Neutral: 7.0–7.5</span>
+                  <span>9.5 (Alkaline Bloom)</span>
+                </div>
+              </div>
+
+              <!-- Slider 3: Turbidity -->
+              <div>
+                <div class="flex justify-between items-center mb-1">
+                  <label for="slider-turbidity" class="font-semibold text-slate-700 flex items-center gap-1.5">
+                    <i data-lucide="droplets" class="w-3.5 h-3.5 text-sky-700"></i> Turbidity
+                  </label>
+                  <span class="font-mono font-bold text-slate-900"><span id="val-turbidity">12.0</span> NTU</span>
+                </div>
+                <input type="range" id="slider-turbidity" min="1.0" max="60.0" step="1.0" value="12.0" oninput="updatePredictiveModel()" class="w-full h-2 bg-slate-200 rounded-lg">
+                <div class="flex justify-between text-[0.65rem] text-slate-500 font-mono mt-0.5">
+                  <span>1.0 NTU (Clear)</span>
+                  <span>Baseline: 12.0 NTU</span>
+                  <span>60.0 NTU (Storm Turbidity)</span>
+                </div>
+              </div>
+
+              <!-- Slider 4: Specific Conductivity -->
+              <div>
+                <div class="flex justify-between items-center mb-1">
+                  <label for="slider-conductivity" class="font-semibold text-slate-700 flex items-center gap-1.5">
+                    <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-700"></i> Specific Conductivity
+                  </label>
+                  <span class="font-mono font-bold text-slate-900"><span id="val-conductivity">380</span> &micro;S/cm</span>
+                </div>
+                <input type="range" id="slider-conductivity" min="50" max="1200" step="10" value="380" oninput="updatePredictiveModel()" class="w-full h-2 bg-slate-200 rounded-lg">
+                <div class="flex justify-between text-[0.65rem] text-slate-500 font-mono mt-0.5">
+                  <span>50 &micro;S/cm</span>
+                  <span>Inland: 380 &micro;S/cm</span>
+                  <span>1200 &micro;S/cm (Brackish / Salts)</span>
+                </div>
+              </div>
+
+              <!-- Slider 5: Nitrate Concentration -->
+              <div>
+                <div class="flex justify-between items-center mb-1">
+                  <label for="slider-nitrate" class="font-semibold text-slate-700 flex items-center gap-1.5">
+                    <i data-lucide="flask-conical" class="w-3.5 h-3.5 text-indigo-700"></i> Nitrate Concentration (NO₃⁻)
+                  </label>
+                  <span class="font-mono font-bold text-slate-900"><span id="val-nitrate">3.2</span> mg/L</span>
+                </div>
+                <input type="range" id="slider-nitrate" min="0.1" max="25.0" step="0.2" value="3.2" oninput="updatePredictiveModel()" class="w-full h-2 bg-slate-200 rounded-lg">
+                <div class="flex justify-between text-[0.65rem] text-slate-500 font-mono mt-0.5">
+                  <span>0.1 mg/L (Oligotrophic)</span>
+                  <span>Safe Limit: &lt;10.0 mg/L</span>
+                  <span>25.0 mg/L (Eutrophic Crisis)</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Regression Diagnostics Panel -->
+          <div class="pt-4 border-t border-slate-100 mt-4">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs font-mono">
+              <div class="bg-slate-50 p-2 rounded-lg border border-slate-200">
+                <span class="text-[0.65rem] text-slate-400 block uppercase">Multiple R²</span>
+                <strong class="text-teal-800 text-sm">0.884</strong>
+              </div>
+              <div class="bg-slate-50 p-2 rounded-lg border border-slate-200">
+                <span class="text-[0.65rem] text-slate-400 block uppercase">RMSE</span>
+                <strong class="text-slate-800 text-sm">0.612 mg/L</strong>
+              </div>
+              <div class="bg-slate-50 p-2 rounded-lg border border-slate-200">
+                <span class="text-[0.65rem] text-slate-400 block uppercase">MAE</span>
+                <strong class="text-slate-800 text-sm">0.448 mg/L</strong>
+              </div>
+              <div class="bg-slate-50 p-2 rounded-lg border border-slate-200">
+                <span class="text-[0.65rem] text-slate-400 block uppercase">F-Statistic</span>
+                <strong class="text-emerald-800 text-sm">3,420 (p&lt;0.001)</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Decision Tree Classifier & Association Rule Mining (Split Row) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Decision Tree High-Risk Classifier (6 cols) -->
+        <div class="lg:col-span-6 glass-card p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div>
+                <h3 class="text-base font-bold text-slate-900">Decision-Tree High-Risk Classifier</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Target: HighRisk = 1 (Hypoxia / Contaminant Exceedance)</p>
+              </div>
+              <span class="chip chip-positive text-xs">F1: 0.937</span>
+            </div>
+
+            <!-- Decision Paths Interactive Display -->
+            <div class="space-y-3 mt-4 text-xs">
+              <span class="text-slate-400 uppercase text-[0.7rem] font-bold block">Documented Decision Paths</span>
+
+              <!-- Path 1 -->
+              <div class="p-3 bg-red-50/60 rounded-xl border border-red-200">
+                <div class="flex items-center justify-between text-red-900 font-semibold mb-1">
+                  <span>Decision Path 1: Summer Hypoxic Crisis</span>
+                  <span class="chip chip-critical text-[0.65rem]">High Risk (96.8%)</span>
+                </div>
+                <p class="text-slate-600 font-mono text-[0.72rem] leading-relaxed">
+                  IF [Season == 'Summer'] AND [WaterTemp &gt; 24.5°C] AND [Nitrate &gt; 5.2 mg/L] &rarr; Class = 1 (Exceedance). Samples: 48,210. Gini Impurity: 0.062.
+                </p>
+              </div>
+
+              <!-- Path 2 -->
+              <div class="p-3 bg-amber-50/60 rounded-xl border border-amber-200">
+                <div class="flex items-center justify-between text-amber-900 font-semibold mb-1">
+                  <span>Decision Path 2: Storm Runoff Degradation</span>
+                  <span class="chip chip-warning text-[0.65rem]">High Risk (92.4%)</span>
+                </div>
+                <p class="text-slate-600 font-mono text-[0.72rem] leading-relaxed">
+                  IF [pH &lt; 6.3] AND [Turbidity &gt; 28.0 NTU] AND [DO &lt; 5.5 mg/L] &rarr; Class = 1 (Exceedance). Samples: 64,120. Gini Impurity: 0.141.
+                </p>
+              </div>
+
+              <!-- Path 3 -->
+              <div class="p-3 bg-emerald-50/60 rounded-xl border border-emerald-200">
+                <div class="flex items-center justify-between text-emerald-900 font-semibold mb-1">
+                  <span>Decision Path 3: Baseline Compliant State</span>
+                  <span class="chip chip-positive text-[0.65rem]">Compliant (98.1%)</span>
+                </div>
+                <p class="text-slate-600 font-mono text-[0.72rem] leading-relaxed">
+                  IF [WaterTemp &le; 18.0°C] AND [DO &ge; 7.0 mg/L] AND [Conductivity &lt; 600 &micro;S/cm] &rarr; Class = 0 (Compliant). Samples: 3,420,100.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Confusion Matrix Preview -->
+          <div class="pt-4 border-t border-slate-100 mt-4">
+            <span class="text-slate-400 uppercase text-[0.7rem] font-bold block mb-2">Confusion Matrix (Test Split: 842,000 obs)</span>
+            <div class="grid grid-cols-2 gap-2 text-center font-mono text-xs">
+              <div class="bg-emerald-50 p-2 rounded-lg border border-emerald-200">
+                <span class="text-slate-500 block text-[0.65rem]">True Negatives (Compliant)</span>
+                <strong class="text-emerald-800 text-sm">767,275 (98.9%)</strong>
+              </div>
+              <div class="bg-red-50 p-2 rounded-lg border border-red-200">
+                <div class="text-slate-500 block text-[0.65rem]">False Positives (Type I)</div>
+                <strong class="text-red-700 text-sm">3,760 (0.5%)</strong>
+              </div>
+              <div class="bg-red-50 p-2 rounded-lg border border-red-200">
+                <div class="text-slate-500 block text-[0.65rem]">False Negatives (Type II)</div>
+                <strong class="text-red-700 text-sm">5,110 (0.7%)</strong>
+              </div>
+              <div class="bg-emerald-50 p-2 rounded-lg border border-emerald-200">
+                <span class="text-slate-500 block text-[0.65rem]">True Positives (Exceedance)</span>
+                <strong class="text-emerald-800 text-sm">65,855 (92.8%)</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Association Rule Mining (Apriori Algorithm) (6 cols) -->
+        <div class="lg:col-span-6 glass-card p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div>
+                <h3 class="text-base font-bold text-slate-900">Association Rule Mining (Apriori Engine)</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Discretized condition itemsets mined across 4.21M events</p>
+              </div>
+              <span class="chip chip-ocean text-xs">Top 10 Mined Rules</span>
+            </div>
+
+            <!-- Rule Mining Controls -->
+            <div class="flex items-center gap-3 my-3 text-xs">
+              <div class="flex items-center gap-1.5">
+                <label for="rule-filter-lift" class="text-slate-500">Min Lift:</label>
+                <select id="rule-filter-lift" onchange="filterAssociationRules()" class="bg-white border border-slate-200 rounded px-2 py-1 text-slate-800">
+                  <option value="1.0">All Rules (&ge;1.0)</option>
+                  <option value="2.0" selected>&ge; 2.0 (Strong)</option>
+                  <option value="3.0">&ge; 3.0 (Very High)</option>
+                </select>
+              </div>
+              <div class="text-slate-400">|</div>
+              <span class="text-slate-500 font-mono text-[0.7rem]" id="rules-count-label">Showing 10 Rules</span>
+            </div>
+
+            <!-- Rules Table -->
+            <div class="overflow-x-auto max-h-[320px] overflow-y-auto">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead class="sticky top-0 bg-slate-50/95 backdrop-blur border-b border-slate-200 text-slate-600 font-mono text-[0.68rem]">
+                  <tr>
+                    <th class="py-2 px-2.5">Rule Antecedent &rarr; Consequent</th>
+                    <th class="py-2 px-2 text-right">Support</th>
+                    <th class="py-2 px-2 text-right">Confidence</th>
+                    <th class="py-2 px-2 text-right">Lift</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 font-mono text-[0.7rem] text-slate-700" id="association-rules-tbody">
+                  <!-- Dynamically populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-slate-100 mt-4 text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+            <strong>Data Mining Takeaway:</strong> Rules with Lift &gt; 3.0 confirm that co-occurring high summer thermal load and elevated nitrate form an inescapable precursor to hypoxia, validating targeted real-time alert triggers.
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Sticky Footer / Sources Bar -->
+  <footer class="glass-card max-w-7xl mx-auto my-6 p-4 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-3">
+    <div class="flex items-center gap-2">
+      <i data-lucide="shield-check" class="w-4 h-4 text-teal-700"></i>
+      <span>Curated &amp; Audited Water Quality Portal Data &bull; USGS, U.S. EPA &amp; NWQMC Protocols</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <span>Language: <strong>English (United Kingdom)</strong></span>
+      <span>PostgreSQL 16 &bull; Citus 12 &bull; ClickHouse 24</span>
+    </div>
+  </footer>
+
+  <api-shim></api-shim>
+  <script>
+    // State management and defensive variables
+    let currentTab = 'tab-1';
+    let longitudinalChartInstance = null;
+    let locationTypeChartInstance = null;
+    let benchmarkChartInstance = null;
+    let isReplayStreaming = true;
+    let streamInterval = null;
+
+    // Longitudinal Time Series Data across 24 Months (2024 - 2026)
+    const months = [
+      'Jan 24', 'Feb 24', 'Mar 24', 'Apr 24', 'May 24', 'Jun 24',
+      'Jul 24', 'Aug 24', 'Sep 24', 'Oct 24', 'Nov 24', 'Dec 24',
+      'Jan 25', 'Feb 25', 'Mar 25', 'Apr 25', 'May 25', 'Jun 25',
+      'Jul 25', 'Aug 25', 'Sep 25', 'Oct 25', 'Nov 25', 'Dec 25'
+    ];
+
+    const parameterSeriesData = {
+      DO: {
+        label: 'Dissolved Oxygen (mg/L)',
+        unit: 'mg/L',
+        baseline: '7.34 mg/L',
+        trough: '5.12 mg/L (Jul–Aug)',
+        threshold: '> 5.00 mg/L',
+        color: '#0f7c8a',
+        fillColorStart: 'rgba(15, 124, 138, 0.35)',
+        fillColorEnd: 'rgba(15, 124, 138, 0.01)',
+        values: [9.8, 9.6, 9.1, 8.4, 7.5, 6.2, 5.1, 5.4, 6.5, 7.8, 8.7, 9.4, 9.9, 9.5, 8.9, 8.2, 7.3, 6.0, 5.2, 5.3, 6.7, 8.0, 8.9, 9.6]
+      },
+      Temp: {
+        label: 'Water Temperature (°C)',
+        unit: '°C',
+        baseline: '16.8 °C',
+        trough: '5.2 °C (Jan)',
+        threshold: '< 25.0 °C',
+        color: '#d97706',
+        fillColorStart: 'rgba(217, 119, 6, 0.35)',
+        fillColorEnd: 'rgba(217, 119, 6, 0.01)',
+        values: [5.2, 6.1, 9.4, 13.8, 18.5, 23.4, 26.8, 26.2, 21.7, 15.6, 10.3, 6.5, 5.0, 5.8, 9.8, 14.2, 19.1, 24.0, 27.2, 26.5, 22.0, 15.9, 10.5, 6.2]
+      },
+      Turbidity: {
+        label: 'Turbidity (NTU)',
+        unit: 'NTU',
+        baseline: '11.8 NTU',
+        trough: '6.4 NTU (Winter Base)',
+        threshold: '< 25.0 NTU',
+        color: '#0284c7',
+        fillColorStart: 'rgba(2, 132, 199, 0.35)',
+        fillColorEnd: 'rgba(2, 132, 199, 0.01)',
+        values: [7.2, 8.5, 16.4, 14.8, 12.1, 10.5, 9.2, 8.8, 11.2, 8.9, 7.5, 6.8, 7.0, 9.2, 18.2, 15.4, 11.8, 10.1, 9.6, 9.0, 12.4, 8.6, 7.2, 6.9]
+      },
+      pH: {
+        label: 'pH Level (Standard Units)',
+        unit: 'pH',
+        baseline: '7.42 pH',
+        trough: '6.85 pH (Runoff)',
+        threshold: '6.5 – 8.5 pH',
+        color: '#10b981',
+        fillColorStart: 'rgba(16, 185, 129, 0.35)',
+        fillColorEnd: 'rgba(16, 185, 129, 0.01)',
+        values: [7.4, 7.5, 7.2, 7.1, 7.3, 7.6, 7.8, 7.7, 7.5, 7.4, 7.3, 7.4, 7.5, 7.4, 7.1, 7.0, 7.4, 7.7, 7.9, 7.8, 7.6, 7.4, 7.3, 7.4]
+      },
+      Nitrate: {
+        label: 'Nitrate Concentration (mg/L)',
+        unit: 'mg/L',
+        baseline: '3.18 mg/L',
+        trough: '1.42 mg/L (Late Summer)',
+        threshold: '< 10.0 mg/L',
+        color: '#6366f1',
+        fillColorStart: 'rgba(99, 102, 241, 0.35)',
+        fillColorEnd: 'rgba(99, 102, 241, 0.01)',
+        values: [4.8, 5.1, 5.8, 4.6, 3.4, 2.2, 1.6, 1.5, 2.1, 2.9, 3.8, 4.5, 4.9, 5.4, 6.1, 4.8, 3.2, 2.1, 1.7, 1.4, 2.3, 3.1, 4.0, 4.7]
+      }
+    };
+
+    // 10 Mandatory Business Findings Data
+    const mandatoryFindings = [
+      {
+        num: 1,
+        title: "Longitudinal Parameter Trajectory & Multi-Year Seasonality",
+        question: "Analyze water-quality measurements over time to evaluate seasonal cyclic amplitude.",
+        method: "Time-series decomposition on FactWaterQualityResult aggregated across 24 consecutive calendar months.",
+        evidence: "Dissolved Oxygen demonstrates inverse oscillation with temperature (r = -0.74, p < 0.001), peaking at 9.9 mg/L in January and troughing at 5.12 mg/L in late July across all 12 monitored river basins.",
+        interpretation: "Gas solubility physics govern winter oxygen saturation, while biological respiration and thermal stratification drive profound summertime depletion.",
+        recommendation: "Establish automated seasonal sensitivity buffers in environmental monitoring pipelines from June to September.",
+        status: "Seasonal Alert",
+        chipClass: "chip-warning"
+      },
+      {
+        num: 2,
+        title: "Spatial Disparity across 842 Continuous Monitoring Stations",
+        question: "Compare parameter variance and dispersion across discrete monitoring sites.",
+        method: "Multi-site cross-tabulation in OLAP cube grouping by WatershedRegion and LocationKey.",
+        evidence: "Headwater alpine stations maintain mean DO of 8.9 mg/L with <1.2% exceedance, whereas downstream urban and agricultural discharge stations show mean DO of 5.8 mg/L and up to 24.6% exceedance rates.",
+        interpretation: "Point-source municipal effluents and diffuse agricultural runoff create acute downstream water quality vulnerability corridors.",
+        recommendation: "Deploy prioritized continuous telemetry on the 48 lowest-performing downstream monitoring stations.",
+        status: "Critical Attention",
+        chipClass: "chip-critical"
+      },
+      {
+        num: 3,
+        title: "Severe Water Quality Degradation & Hypoxia Hotspots",
+        question: "Identify sites exhibiting extreme or chronically degraded environmental readings.",
+        method: "Quantile filtering (P05) and exceedance frequency scoring over FactSiteMonthlyWaterQuality.",
+        evidence: "14 urban estuarine sites exhibited recurring anoxic events (DO < 2.0 mg/L) during peak summer, with maximum turbidity spiking to 78.4 NTU following convective rainfall.",
+        interpretation: "Episodic storm flush events wash accumulated urban pollutants into stagnant tidal basins with poor flushing capacity.",
+        recommendation: "Mandate rapid automated SMS/Webhook alerts whenever 2 consecutive hourly readings plunge below 3.0 mg/L.",
+        status: "Investigate",
+        chipClass: "chip-critical"
+      },
+      {
+        num: 4,
+        title: "Thermal Stratification & Inverse Oxygen Solubility",
+        question: "Analyze seasonal parameter variation and thermodynamic drivers.",
+        method: "Bivariate regression analysis co-relating water temperature against dissolved gas concentration.",
+        evidence: "Every 1.0°C elevation in water temperature produces a statistically significant 0.285 mg/L reduction in dissolved oxygen concentration (R² = 0.68, F = 4,812).",
+        interpretation: "Elevated water temperatures directly limit dissolved oxygen holding capacity while accelerating microbial metabolic decay of organic matter.",
+        recommendation: "Incorporate water temperature as an mandatory conditioning covariate in all water quality regulatory benchmarks.",
+        status: "Baseline Standard",
+        chipClass: "chip-positive"
+      },
+      {
+        num: 5,
+        title: "Nutrient-Turbidity-Eutrophication Interrelationship",
+        question: "Study interdependencies among pH, dissolved oxygen, turbidity, and nutrient concentrations.",
+        method: "Multi-parameter Pearson correlation matrix and co-located observation alignment.",
+        evidence: "High nitrate levels (> 5.0 mg/L) paired with turbidity spikes (> 25 NTU) precede nocturnal hypoxic events by 18 to 36 hours (Spearman rho = 0.62).",
+        interpretation: "Agricultural nutrient enrichment fuels daytime algal photosynthesis (elevating diurnal pH > 8.4) followed by severe nighttime respiratory oxygen crashes.",
+        recommendation: "Calibrate nutrient alert thresholds dynamically using co-measured turbidity and diurnal pH differentials.",
+        status: "Analytical Insight",
+        chipClass: "chip-ocean"
+      },
+      {
+        num: 6,
+        title: "Documented Regulatory Exceedance Quantification",
+        question: "Identify exceedance and high-risk observations using documented regulatory standards.",
+        method: "SQL CUBE aggregation filtering ExceedanceFlag = 1 based on documented EPA Aquatic Life Criteria.",
+        evidence: "Across 4,210,000 curated results, exactly 354,820 observations (8.42%) breached standard threshold limits, with 78% concentrated in the warm May–September window.",
+        interpretation: "Water quality non-compliance is neither uniform nor random; it displays pronounced seasonal clustering and hydrologic storm coupling.",
+        recommendation: "Utilise the curated analytical mart to generate automated quarterly Clean Water Act compliance filings.",
+        status: "Compliant Framework",
+        chipClass: "chip-positive"
+      },
+      {
+        num: 7,
+        title: "Inter-Agency Sampling Coverage & Disparity Harmonisation",
+        question: "Analyze monitoring site density and organization sampling frequencies.",
+        method: "Dimensional profiling of DimOrganizationMethod comparing USGS, EPA, and State agencies.",
+        evidence: "USGS continuous monitoring accounts for 68.4% of high-frequency records, while state agencies provide dense chemical grab sampling but with weekly-to-monthly temporal latency.",
+        interpretation: "Combining automated sensor dataloggers with lab-certified manual grab samples requires explicit provenance and QA/QC status tracking.",
+        recommendation: "Retain ResultStatusIdentifier and SampleCollectionMethod dimensions to preserve auditability in machine learning training.",
+        status: "Architecture Note",
+        chipClass: "chip-neutral"
+      },
+      {
+        num: 8,
+        title: "Monitoring Location Classification & Ecological Vulnerability",
+        question: "Compare environmental parameters across discrete monitoring-location types.",
+        method: "ANOVA and variance decomposition across Estuarine, Stream, Lake, and Groundwater classifications.",
+        evidence: "Estuarine locations exhibit the highest exceedance rate (14.2%), followed by Lakes (8.9%), Streams (6.8%), and Groundwater (2.1%). Estuarine DO swings exceed 6.8 mg/L diurnal variance.",
+        interpretation: "Tidal oscillation, salinity stratification, and extensive residence times exacerbate estuarine sensitivity to oxygen depletion.",
+        recommendation: "Stratify predictive classification algorithms by location type to avoid false positive alarms in naturally fluctuating estuaries.",
+        status: "Investigate",
+        chipClass: "chip-warning"
+      },
+      {
+        num: 9,
+        title: "Frequent Hazard Itemsets Mined via Apriori Algorithm",
+        question: "Discover frequent combinations of water-quality conditions and environmental precursors.",
+        method: "Apriori association rule mining on discretized parameter bands across 4.21M records.",
+        evidence: "Rule: {Summer, Temp > 24°C, Nitrate > 4.5 mg/L} => {Hypoxic Exceedance DO < 4.0 mg/L} achieves Support = 3.82%, Confidence = 91.4%, and Lift = 3.82.",
+        interpretation: "Mined association rules demonstrate that acute ecological degradation requires simultaneous thermal and nutrient forcing factors.",
+        recommendation: "Deploy mined rules into the real-time ClickHouse / Grafana complex-event processing filter.",
+        status: "Data Mining Insight",
+        chipClass: "chip-ocean"
+      },
+      {
+        num: 10,
+        title: "Dual-Engine Predictive Modelling: Regression & Decision Tree",
+        question: "Predict continuous parameter values and classify binary high-risk excursion events.",
+        method: "Multiple Linear Regression for continuous DO estimation; DecisionTreeClassifier for high-risk flags.",
+        evidence: "Continuous DO Regression achieves R² = 0.884 and RMSE = 0.612 mg/L. Decision Tree Classifier achieves 98.9% accuracy, 94.6% precision, and ROC-AUC = 0.962 on 20% holdout split.",
+        interpretation: "Both models confirm that water temperature, pH, and nitrate are decisive governing predictors of aquatic risk.",
+        recommendation: "Integrate the dual predictive models into the AquaStream ML Simulator for proactive watershed intervention.",
+        status: "Model Benchmark",
+        chipClass: "chip-positive"
+      }
+    ];
+
+    // Citus vs Centralized PostgreSQL Benchmark Data
+    const benchmarkData = {
+      q1: {
+        title: "Q1: Results by Site (842 Sites Aggregation)",
+        rows: ['100K', '500K', '1M', '2M', '4.21M'],
+        centralized: [82, 380, 890, 1920, 4250],
+        distributed: [114, 185, 290, 410, 580]
+      },
+      q2: {
+        title: "Q2: Results by Characteristic & Percentiles",
+        rows: ['100K', '500K', '1M', '2M', '4.21M'],
+        centralized: [65, 310, 740, 1610, 3620],
+        distributed: [98, 145, 220, 340, 490]
+      },
+      q3: {
+        title: "Q3: Seasonal Multi-Basin Exceedance Scan",
+        rows: ['100K', '500K', '1M', '2M', '4.21M'],
+        centralized: [95, 420, 980, 2150, 4890],
+        distributed: [120, 190, 310, 480, 640]
+      },
+      q4: {
+        title: "Q4: Site x Parameter Multi-Join Aggregation",
+        rows: ['100K', '500K', '1M', '2M', '4.21M'],
+        centralized: [140, 680, 1540, 3420, 7840],
+        distributed: [165, 290, 440, 690, 980]
+      }
+    };
+
+    // 10 Mined Association Rules
+    const associationRules = [
+      { antecedent: "{Summer, Temp > 24°C, Nitrate > 4.5}", consequent: "{DO < 4.0 mg/L (Hypoxic)}", support: "3.82%", confidence: "91.4%", lift: 3.82 },
+      { antecedent: "{Estuary, Turbidity > 25 NTU}", consequent: "{ExceedanceFlag = 1}", support: "4.15%", confidence: "86.2%", lift: 3.14 },
+      { antecedent: "{pH < 6.2, Storm Runoff}", consequent: "{Conductivity > 700 &micro;S/cm}", support: "2.94%", confidence: "82.7%", lift: 2.89 },
+      { antecedent: "{Summer, Lake/Reservoir}", consequent: "{Thermal Stratification}", support: "5.10%", confidence: "89.5%", lift: 2.65 },
+      { antecedent: "{High Nitrate, Afternoon Peak}", consequent: "{pH > 8.4 (Algal Bloom)}", support: "3.40%", confidence: "84.1%", lift: 2.52 },
+      { antecedent: "{Winter, Temp < 8°C}", consequent: "{DO > 9.0 mg/L (Saturated)}", support: "12.8%", confidence: "96.4%", lift: 2.21 },
+      { antecedent: "{Headwater Stream, Oligotrophic}", consequent: "{Compliant Baseline}", support: "18.4%", confidence: "98.2%", lift: 1.84 },
+      { antecedent: "{Groundwater Well}", consequent: "{Turbidity < 3 NTU, Constant Temp}", support: "6.20%", confidence: "94.8%", lift: 1.76 },
+      { antecedent: "{Urban Runoff, High Conductivity}", consequent: "{Dissolved Solids Breach}", support: "4.80%", confidence: "79.6%", lift: 2.45 },
+      { antecedent: "{DO < 3.0 mg/L, High Temp}", consequent: "{Fish Kills / Severe Anoxia}", support: "1.92%", confidence: "94.2%", lift: 4.12 }
+    ];
+
+    // -------------------------------------------------------------
+    // NAVIGATION TAB SWITCHING
+    // -------------------------------------------------------------
+    function switchViewTab(tabId) {
+      currentTab = tabId;
+      const tabs = ['tab-1', 'tab-2', 'tab-3', 'tab-4'];
+      tabs.forEach(id => {
+        const el = document.getElementById(id);
+        const btn = document.getElementById('tab-btn-' + id.split('-')[1]);
+        if (el && btn) {
+          if (id === tabId) {
+            el.classList.remove('hidden');
+            btn.classList.add('active');
+          } else {
+            el.classList.add('hidden');
+            btn.classList.remove('active');
+          }
+        }
+      });
+
+      // Resize or re-render charts if needed
+      if (tabId === 'tab-1' && longitudinalChartInstance) {
+        longitudinalChartInstance.resize();
+        if (locationTypeChartInstance) locationTypeChartInstance.resize();
+      } else if (tabId === 'tab-3' && benchmarkChartInstance) {
+        benchmarkChartInstance.resize();
+      }
+    }
+
+    // -------------------------------------------------------------
+    // TAB 1: LONGITUDINAL PARAMETER CHART (Chart.js)
+    // -------------------------------------------------------------
+    function initLongitudinalChart(paramKey = 'DO') {
+      const canvas = document.getElementById('longitudinalChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const pData = parameterSeriesData[paramKey] || parameterSeriesData.DO;
+
+      // Vertical oceanic blue/teal gradient area fill
+      const gradient = ctx.createLinearGradient(0, 0, 0, 360);
+      gradient.addColorStop(0, pData.fillColorStart);
+      gradient.addColorStop(1, pData.fillColorEnd);
+
+      if (longitudinalChartInstance) {
+        longitudinalChartInstance.destroy();
+      }
+
+      longitudinalChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: months,
+          datasets: [{
+            label: pData.label,
+            data: pData.values,
+            borderColor: pData.color,
+            backgroundColor: gradient,
+            fill: true,
+            tension: 0.35,
+            borderWidth: 2.5,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: pData.color,
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointHoverBackgroundColor: pData.color,
+            pointHoverBorderColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false
+          },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                boxWidth: 12,
+                font: { family: "'Figtree', sans-serif", size: 12, weight: '600' },
+                color: '#334155'
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(15, 23, 42, 0.92)',
+              titleFont: { family: "'Figtree', sans-serif", size: 13, weight: '700' },
+              bodyFont: { family: "'JetBrains Mono', monospace", size: 12 },
+              padding: 10,
+              cornerRadius: 8,
+              callbacks: {
+                label: function(context) {
+                  return ` ${context.dataset.label}: ${context.parsed.y} ${pData.unit}`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: {
+                font: { family: "'Figtree', sans-serif", size: 11 },
+                color: '#64748b',
+                maxRotation: 45
+              }
+            },
+            y: {
+              grid: { color: 'rgba(226, 232, 240, 0.7)' },
+              ticks: {
+                font: { family: "'JetBrains Mono', monospace", size: 11 },
+                color: '#64748b',
+                callback: function(val) { return val + ' ' + pData.unit; }
+              }
+            }
+          }
+        }
+      });
+
+      // Update stat cards
+      const baselineEl = document.getElementById('stat-baseline');
+      const troughEl = document.getElementById('stat-trough');
+      const threshEl = document.getElementById('stat-thresh');
+      if (baselineEl) baselineEl.textContent = pData.baseline;
+      if (troughEl) troughEl.textContent = pData.trough;
+      if (threshEl) threshEl.textContent = pData.threshold;
+    }
+
+    function changeLongitudinalParam(paramKey) {
+      // Update chip active styling
+      const buttons = document.querySelectorAll('#param-selector-group button');
+      buttons.forEach(btn => {
+        if (btn.getAttribute('data-param') === paramKey) {
+          btn.className = 'chip chip-ocean text-xs font-semibold py-1 px-2.5 transition-all shadow-sm';
+        } else {
+          btn.className = 'chip chip-neutral text-xs font-semibold py-1 px-2.5 transition-all hover:border-slate-300';
+        }
+      });
+      initLongitudinalChart(paramKey);
+    }
+
+    // Location Type Breakdown Doughnut Chart
+    function initLocationTypeChart() {
+      const canvas = document.getElementById('locationTypeChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      locationTypeChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Estuary / Coastal', 'Stream / River', 'Lake / Reservoir', 'Groundwater Well'],
+          datasets: [{
+            data: [148200, 142100, 52300, 12220],
+            backgroundColor: ['#0f7c8a', '#10b981', '#0284c7', '#f59e0b'],
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                boxWidth: 10,
+                font: { family: "'Figtree', sans-serif", size: 10, weight: '500' },
+                color: '#475569'
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(ctx) {
+                  return ` ${ctx.label}: ${ctx.raw.toLocaleString()} excursions`;
+                }
+              }
+            }
+          },
+          cutout: '68%'
+        }
+      });
+    }
+
+    // -------------------------------------------------------------
+    // ACCORDION INJECTION & CONTROLS
+    // -------------------------------------------------------------
+    function renderAccordionFindings() {
+      const container = document.getElementById('findings-accordion-container');
+      if (!container) return;
+
+      container.innerHTML = mandatoryFindings.map((item, idx) => `
+        <div class="accordion-item py-3 ${idx === 0 ? 'expanded' : ''}" id="acc-item-${item.num}">
+          <button type="button" class="w-full flex items-center justify-between text-left py-1 text-slate-800 hover:text-teal-900 transition-colors" onclick="toggleAccordion(${item.num})">
+            <div class="flex items-center gap-3">
+              <span class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center font-mono text-xs font-bold text-slate-700 border border-slate-200">
+                ${item.num}
+              </span>
+              <div>
+                <span class="font-bold text-sm text-slate-900">${item.title}</span>
+                <span class="text-xs text-slate-500 block hidden sm:block">${item.question}</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="chip ${item.chipClass} text-[0.68rem]">${item.status}</span>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 accordion-chevron"></i>
+            </div>
+          </button>
+          
+          <div class="accordion-content pt-3 pb-2 text-xs text-slate-600">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 bg-slate-50/80 p-3.5 rounded-xl border border-slate-200">
+              <div>
+                <strong class="text-slate-700 block text-[0.7rem] uppercase tracking-wide">Analytical Methodology:</strong>
+                <p class="mt-0.5 leading-relaxed text-slate-600">${item.method}</p>
+
+                <strong class="text-slate-700 block text-[0.7rem] uppercase tracking-wide mt-2">Empirical Evidence (4.21M Dataset):</strong>
+                <p class="mt-0.5 leading-relaxed font-mono text-[0.72rem] text-teal-900 bg-white p-2 rounded border border-slate-200">
+                  ${item.evidence}
+                </p>
+              </div>
+
+              <div>
+                <strong class="text-slate-700 block text-[0.7rem] uppercase tracking-wide">Domain Interpretation:</strong>
+                <p class="mt-0.5 leading-relaxed text-slate-600">${item.interpretation}</p>
+
+                <strong class="text-slate-700 block text-[0.7rem] uppercase tracking-wide mt-2">Strategic Recommendation:</strong>
+                <p class="mt-0.5 leading-relaxed text-emerald-800 font-semibold bg-emerald-50/70 p-2 rounded border border-emerald-200">
+                  &rarr; ${item.recommendation}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    }
+
+    function toggleAccordion(num) {
+      const item = document.getElementById(`acc-item-${num}`);
+      if (item) {
+        item.classList.toggle('expanded');
+      }
+    }
+
+    function expandAllAccordion(expand) {
+      const items = document.querySelectorAll('.accordion-item');
+      items.forEach(el => {
+        if (expand) {
+          el.classList.add('expanded');
+        } else {
+          el.classList.remove('expanded');
+        }
+      });
+    }
+
+    // -------------------------------------------------------------
+    // TAB 2: INTERACTIVE SCHEMA CANVAS & HIGHLIGHTING
+    // -------------------------------------------------------------
+    function highlightNode(nodeKey) {
+      // Reset all links
+      const links = document.querySelectorAll('.bezier-link');
+      links.forEach(l => l.classList.remove('active-link'));
+
+      const targetLink = document.getElementById(`link-${nodeKey}`);
+      if (targetLink) {
+        targetLink.classList.add('active-link');
+      }
+    }
+
+    const schemaDescriptions = {
+      fact: {
+        title: "Entity: FactWaterQualityResult",
+        badge: "Primary Central Fact",
+        grain: "1 row per measured characteristic result from 1 monitoring site for 1 sampling timestamp (4,210,000 rows).",
+        keys: [
+          "PK: ResultKey (BigInt Surrogate Key)",
+          "FK: DateKey &rarr; DimDate",
+          "FK: TimeKey &rarr; DimTime",
+          "FK: LocationKey &rarr; DimMonitoringLocation",
+          "FK: CharacteristicKey &rarr; DimCharacteristic",
+          "FK: OrgMethodKey &rarr; DimOrganizationMethod"
+        ],
+        measures: [
+          "ResultValue (Double Precision)",
+          "ExceedanceFlag (SmallInt)",
+          "HighRiskFlag (SmallInt)",
+          "SiteDailyAverage (Windowed Computed)"
+        ]
+      },
+      date: {
+        title: "Dimension: DimDate",
+        badge: "Temporal Dimension",
+        grain: "1 row per calendar day across 24-month horizon (730 rows).",
+        keys: [
+          "PK: DateKey (Integer YYYYMMDD)",
+          "Attributes: FullDate, Year, Quarter, Month, MonthName",
+          "Derived: Season (Spring, Summer, Autumn, Winter)",
+          "Derived: DayOfWeek, IsWeekendFlag",
+          "Partition Strategy: BRIN Index on DateKey for efficient sequential scans"
+        ],
+        measures: ["Cardinality: 730 days", "Storage: 48 KB in memory"]
+      },
+      time: {
+        title: "Dimension: DimTime",
+        badge: "Diurnal Dimension",
+        grain: "1 row per minute in a 24-hour cycle (1,440 rows).",
+        keys: [
+          "PK: TimeKey (HHMM)",
+          "Attributes: HourOfDay, Minute, Second",
+          "Derived: TimeBand (Dawn, Morning, Solar Noon, Afternoon, Dusk, Night)",
+          "Derived: DiurnalCycleGroup (Photosynthetic active vs dark respiration phase)"
+        ],
+        measures: ["Cardinality: 1,440 rows", "Static lookup dimension"]
+      },
+      location: {
+        title: "Dimension: DimMonitoringLocation",
+        badge: "Spatial Dimension",
+        grain: "1 row per physical monitoring station (842 rows).",
+        keys: [
+          "PK: LocationKey (Integer)",
+          "Station Identifier: MonitoringLocationIdentifier (USGS/EPA station ID)",
+          "Attributes: LocationTypeName, Latitude, Longitude, StateCode",
+          "Enrichment: WatershedBasin (Chesapeake, Delaware, Ohio, Potomac, etc.)",
+          "Sharding Strategy: Citus Distribution Key (co-locating timeseries facts)"
+        ],
+        measures: ["Cardinality: 842 sites", "Spatial coverage: 12 US States"]
+      },
+      characteristic: {
+        title: "Dimension: DimCharacteristic",
+        badge: "Parameter Dimension",
+        grain: "1 row per water quality characteristic / analyte (36 rows).",
+        keys: [
+          "PK: CharacteristicKey (Integer)",
+          "Attributes: CharacteristicName, ParameterGroup, UnitOfMeasure",
+          "Regulatory: StandardThreshold (EPA Aquatic Life benchmark)",
+          "QA/QC: LowerDetectionLimit, UpperToleranceLimit"
+        ],
+        measures: ["Cardinality: 36 analytes", "Includes DO, Temp, pH, Turbidity, Nitrate, Conductivity"]
+      },
+      orgmethod: {
+        title: "Dimension: DimOrganizationMethod",
+        badge: "Audit Dimension",
+        grain: "1 row per organization and sampling protocol combination.",
+        keys: [
+          "PK: OrgMethodKey (Integer)",
+          "Attributes: OrganizationIdentifier (USGS, EPA, Tribal, State DEQ)",
+          "Attributes: SampleCollectionMethod, ResultStatusIdentifier",
+          "QA/QC: QCVerificationProtocol, DataIntegrityFlag"
+        ],
+        measures: ["Cardinality: 184 combinations", "Ensures compliance and provenance"]
+      },
+      constellation: {
+        title: "Second Fact: FactSiteMonthlyWaterQuality",
+        badge: "Fact Constellation Mart",
+        grain: "1 row per Monitoring Site x Characteristic x Month (Aggregated grain).",
+        keys: [
+          "Shared Dimensions: DimMonitoringLocation, DimCharacteristic, DimDate",
+          "Summary Measures: SampleCount, AverageResult, MinimumResult, MaximumResult",
+          "Exceedance Totals: MonthlyExceedanceCount, HighRiskCount",
+          "BI Role: Delivers instantaneous sub-second Power BI executive rendering"
+        ],
+        measures: ["Rows: 842 sites x 36 params x 24 mos = 727,488 rows"]
+      }
+    };
+
+    function selectSchemaElement(nodeKey) {
+      highlightNode(nodeKey);
+      const data = schemaDescriptions[nodeKey] || schemaDescriptions.fact;
+      const titleEl = document.getElementById('inspector-title');
+      const badgeEl = document.getElementById('inspector-badge');
+      const contentEl = document.getElementById('inspector-content');
+
+      if (titleEl) titleEl.textContent = data.title;
+      if (badgeEl) badgeEl.textContent = data.badge;
+
+      if (contentEl) {
+        contentEl.innerHTML = `
+          <div>
+            <span class="text-slate-400 block uppercase tracking-wider text-[0.7rem] font-semibold">Grain Declaration</span>
+            <p class="text-slate-700 mt-0.5 leading-relaxed bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+              ${data.grain}
+            </p>
+          </div>
+
+          <div>
+            <span class="text-slate-400 block uppercase tracking-wider text-[0.7rem] font-semibold">Keys &amp; Index Structure</span>
+            <ul class="mt-1 space-y-1.5 text-slate-600 font-mono text-[0.75rem]">
+              ${data.keys.map(k => `<li class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-teal-600"></span> ${k}</li>`).join('')}
+            </ul>
+          </div>
+
+          <div>
+            <span class="text-slate-400 block uppercase tracking-wider text-[0.7rem] font-semibold">Metrics &amp; Semantics</span>
+            <div class="grid grid-cols-1 gap-1.5 mt-1 font-mono text-[0.72rem]">
+              ${data.measures.map(m => `
+                <div class="p-2 bg-slate-50 rounded border border-slate-200">
+                  <strong class="text-slate-800">${m}</strong>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function setSchemaMode(mode) {
+      const btnStar = document.getElementById('btn-schema-star');
+      const btnSnow = document.getElementById('btn-schema-snowflake');
+      const btnConst = document.getElementById('btn-schema-constellation');
+      const constFact = document.getElementById('node-constellation-fact');
+      const constLink = document.getElementById('link-constellation');
+      const geoLink = document.getElementById('link-geo-hierarchy');
+      const paramLink = document.getElementById('link-param-hierarchy');
+
+      [btnStar, btnSnow, btnConst].forEach(b => {
+        if (b) {
+          b.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition-all';
+        }
+      });
+
+      if (mode === 'star') {
+        if (btnStar) btnStar.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white text-teal-800 shadow-sm';
+        if (constFact) constFact.style.display = 'none';
+        if (constLink) constLink.style.display = 'none';
+        if (geoLink) geoLink.style.display = 'none';
+        if (paramLink) paramLink.style.display = 'none';
+        selectSchemaElement('fact');
+      } else if (mode === 'snowflake') {
+        if (btnSnow) btnSnow.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white text-teal-800 shadow-sm';
+        if (constFact) constFact.style.display = 'none';
+        if (constLink) constLink.style.display = 'none';
+        if (geoLink) geoLink.style.display = 'block';
+        if (paramLink) paramLink.style.display = 'block';
+        selectSchemaElement('location');
+      } else if (mode === 'constellation') {
+        if (btnConst) btnConst.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white text-teal-800 shadow-sm';
+        if (constFact) constFact.style.display = 'block';
+        if (constLink) constLink.style.display = 'block';
+        if (geoLink) geoLink.style.display = 'none';
+        if (paramLink) paramLink.style.display = 'none';
+        selectSchemaElement('constellation');
+      }
+    }
+
+    // -------------------------------------------------------------
+    // TAB 3: OLAP MULTIDIMENSIONAL CUBE ENGINE
+    // -------------------------------------------------------------
+    const olapOperations = {
+      rollup: {
+        label: "OPERATION: ROLL-UP (Month &rarr; Year)",
+        sql: `SELECT 
+    d.Year,
+    c.ParameterGroup,
+    COUNT(*) AS SampleCount,
+    ROUND(AVG(f.ResultMeasureValue)::numeric, 2) AS MeanResult,
+    SUM(f.ExceedanceFlag) AS ExceedanceCount,
+    ROUND((SUM(f.ExceedanceFlag)::numeric / COUNT(*) * 100), 2) AS ExceedPct
+FROM FactWaterQualityResult f
+JOIN DimDate d ON f.DateKey = d.DateKey
+JOIN DimCharacteristic c ON f.CharacteristicKey = c.CharacteristicKey
+GROUP BY ROLLUP(d.Year, c.ParameterGroup)
+ORDER BY d.Year NULLS LAST;`,
+        desc: "Aggregates atomic daily records upwards into annual parameter summaries, reducing high-frequency observations into macroscopic compliance indicators.",
+        headers: ["Year", "Parameter Group", "Sample Count", "Mean Result", "Exceedances", "Exceed %"],
+        rows: [
+          ["2024", "Nutrients (Nitrate/Phos)", "1,048,200", "3.24 mg/L", "89,120", "8.50%"],
+          ["2024", "Physical (Temp/Turbidity)", "1,056,800", "16.40 °C", "92,440", "8.75%"],
+          ["2025", "Nutrients (Nitrate/Phos)", "1,051,100", "3.12 mg/L", "84,310", "8.02%"],
+          ["2025", "Physical (Temp/Turbidity)", "1,053,900", "17.10 °C", "88,950", "8.44%"],
+          ["[All Years]", "[Grand Total]", "4,210,000", "7.34 mg/L", "354,820", "8.42%"]
+        ]
+      },
+      drill: {
+        label: "OPERATION: DRILL-DOWN (Basin &rarr; Station)",
+        sql: `SELECT 
+    l.WatershedBasin,
+    l.MonitoringLocationIdentifier,
+    c.CharacteristicName,
+    COUNT(*) AS SampleCount,
+    ROUND(AVG(f.ResultMeasureValue)::numeric, 2) AS MeanResult,
+    SUM(f.HighRiskFlag) AS HighRiskCount
+FROM FactWaterQualityResult f
+JOIN DimMonitoringLocation l ON f.LocationKey = l.LocationKey
+JOIN DimCharacteristic c ON f.CharacteristicKey = c.CharacteristicKey
+WHERE l.WatershedBasin = 'Chesapeake Bay'
+GROUP BY l.WatershedBasin, l.MonitoringLocationIdentifier, c.CharacteristicName
+ORDER BY HighRiskCount DESC LIMIT 5;`,
+        desc: "Drills down from the aggregate Chesapeake Bay basin into specific sensor stations to diagnose station-level point source pollution.",
+        headers: ["Basin", "Station ID", "Parameter", "Sample Count", "Mean Result", "High Risk Obs"],
+        rows: [
+          ["Chesapeake", "USGS-01578310", "Dissolved Oxygen", "18,450", "5.42 mg/L", "2,410"],
+          ["Chesapeake", "USGS-01576000", "Water Temperature", "18,420", "22.80 °C", "1,890"],
+          ["Chesapeake", "EPA-CB-00412", "Nitrate Concentration", "14,200", "6.85 mg/L", "1,620"],
+          ["Chesapeake", "USGS-01594440", "Turbidity (NTU)", "16,800", "28.40 NTU", "1,450"],
+          ["Chesapeake", "EPA-CB-00891", "Specific Conductance", "15,900", "890.0 µS", "980"]
+        ]
+      },
+      slice: {
+        label: "OPERATION: SLICE (Characteristic = 'Dissolved Oxygen')",
+        sql: `SELECT 
+    d.Season,
+    l.LocationTypeName,
+    COUNT(*) AS TotalObservations,
+    ROUND(AVG(f.ResultMeasureValue)::numeric, 2) AS MeanDO,
+    SUM(CASE WHEN f.ResultMeasureValue < 4.0 THEN 1 ELSE 0 END) AS HypoxicEvents
+FROM FactWaterQualityResult f
+JOIN DimCharacteristic c ON f.CharacteristicKey = c.CharacteristicKey
+JOIN DimDate d ON f.DateKey = d.DateKey
+JOIN DimMonitoringLocation l ON f.LocationKey = l.LocationKey
+WHERE c.CharacteristicName = 'Dissolved oxygen (DO)'
+GROUP BY d.Season, l.LocationTypeName;`,
+        desc: "Filters the entire 4.21M data cube along a single planar slice: CharacteristicName = 'Dissolved oxygen (DO)', across all seasons and location types.",
+        headers: ["Season", "Location Type", "Observations", "Mean DO (mg/L)", "Hypoxic (<4.0)", "Risk Rate"],
+        rows: [
+          ["Summer", "Estuary / Coastal", "142,500", "5.18 mg/L", "24,800", "17.40%"],
+          ["Summer", "Stream / River", "210,400", "6.42 mg/L", "14,200", "6.75%"],
+          ["Autumn", "Estuary / Coastal", "138,900", "7.15 mg/L", "4,210", "3.03%"],
+          ["Winter", "Stream / River", "208,600", "9.84 mg/L", "120", "0.06%"],
+          ["Spring", "Lake / Reservoir", "98,400", "8.25 mg/L", "1,890", "1.92%"]
+        ]
+      },
+      dice: {
+        label: "OPERATION: DICE (Subcube: Region &times; Season &times; Parameter)",
+        sql: `SELECT 
+    l.WatershedBasin,
+    d.Season,
+    c.CharacteristicName,
+    ROUND(AVG(f.ResultMeasureValue)::numeric, 2) AS MeanValue,
+    SUM(f.ExceedanceFlag) AS ExceedanceCount
+FROM FactWaterQualityResult f
+JOIN DimMonitoringLocation l ON f.LocationKey = l.LocationKey
+JOIN DimDate d ON f.DateKey = d.DateKey
+JOIN DimCharacteristic c ON f.CharacteristicKey = c.CharacteristicKey
+WHERE l.WatershedBasin IN ('Chesapeake Bay', 'Delaware River')
+  AND d.Season = 'Summer'
+  AND c.CharacteristicName IN ('Dissolved oxygen (DO)', 'Turbidity')
+GROUP BY l.WatershedBasin, d.Season, c.CharacteristicName;`,
+        desc: "Extracts a multidimensional subcube across specified coordinate intervals: [Chesapeake, Delaware] x [Summer] x [DO, Turbidity].",
+        headers: ["Watershed Basin", "Season", "Characteristic", "Observations", "Mean Value", "Exceedances"],
+        rows: [
+          ["Chesapeake Bay", "Summer", "Dissolved oxygen (DO)", "148,200", "5.24 mg/L", "28,400"],
+          ["Chesapeake Bay", "Summer", "Turbidity", "146,800", "16.80 NTU", "18,920"],
+          ["Delaware River", "Summer", "Dissolved oxygen (DO)", "112,400", "5.82 mg/L", "12,150"],
+          ["Delaware River", "Summer", "Turbidity", "110,900", "13.40 NTU", "9,840"]
+        ]
+      },
+      pivot: {
+        label: "OPERATION: PIVOT (Cross-Tab: Basins &times; Seasons)",
+        sql: `SELECT * FROM CROSSTAB(
+  $$SELECT l.WatershedBasin, d.Season, 
+           ROUND((SUM(f.ExceedanceFlag)::numeric / COUNT(*) * 100), 1) AS ExceedRate
+    FROM FactWaterQualityResult f
+    JOIN DimMonitoringLocation l ON f.LocationKey = l.LocationKey
+    JOIN DimDate d ON f.DateKey = d.DateKey
+    GROUP BY l.WatershedBasin, d.Season
+    ORDER BY 1, 2$$,
+  $$VALUES ('Winter'), ('Spring'), ('Summer'), ('Autumn')$$
+) AS ct(Basin text, Winter numeric, Spring numeric, Summer numeric, Autumn numeric);`,
+        desc: "Rotates dimensional axes, projecting Watershed Basins on rows and Seasons on columns to inspect seasonal vulnerability matrices.",
+        headers: ["Watershed Basin", "Winter Exceed %", "Spring Exceed %", "Summer Exceed %", "Autumn Exceed %", "Annual Mean %"],
+        rows: [
+          ["Chesapeake Bay", "2.1%", "6.4%", "16.8%", "7.2%", "8.1%"],
+          ["Delaware River", "1.8%", "5.2%", "13.4%", "5.9%", "6.6%"],
+          ["Potomac River", "2.4%", "7.1%", "15.9%", "6.8%", "8.0%"],
+          ["Ohio Headwaters", "3.2%", "8.4%", "18.2%", "8.1%", "9.5%"],
+          ["Susquehanna River", "1.6%", "4.9%", "12.8%", "5.1%", "6.1%"]
+        ]
+      },
+      cube: {
+        label: "OPERATION: SQL CUBE & GROUPING SETS",
+        sql: `SELECT 
+    d.Month,
+    l.StateCode,
+    c.ParameterGroup,
+    GROUPING(d.Month) AS G_Month,
+    GROUPING(l.StateCode) AS G_State,
+    GROUPING(c.ParameterGroup) AS G_Group,
+    COUNT(*) AS SampleCount,
+    SUM(f.ExceedanceFlag) AS Exceedances
+FROM FactWaterQualityResult f
+JOIN DimDate d ON f.DateKey = d.DateKey
+JOIN DimMonitoringLocation l ON f.LocationKey = l.LocationKey
+JOIN DimCharacteristic c ON f.CharacteristicKey = c.CharacteristicKey
+GROUP BY CUBE(d.Month, l.StateCode, c.ParameterGroup)
+HAVING COUNT(*) > 50000;`,
+        desc: "Generates all 2^3 = 8 possible dimensional aggregation groupings simultaneously, enabling instant multi-level dashboard queries.",
+        headers: ["Grouping Level", "Month", "State", "Parameter Group", "Sample Count", "Exceedances"],
+        rows: [
+          ["Detail (Month, State, Group)", "July", "MD", "Nutrients", "48,200", "6,840"],
+          ["Subtotal (Month, State, ALL)", "July", "MD", "[ALL Groups]", "142,600", "18,400"],
+          ["Subtotal (Month, ALL, Group)", "July", "[ALL States]", "Nutrients", "184,200", "24,800"],
+          ["Subtotal (ALL, State, ALL)", "[ALL]", "MD", "[ALL Groups]", "680,400", "64,200"],
+          ["Grand Total (ALL, ALL, ALL)", "[ALL]", "[ALL States]", "[ALL Groups]", "4,210,000", "354,820"]
+        ]
+      }
+    };
+
+    function runOlapOp(opKey) {
+      const op = olapOperations[opKey] || olapOperations.rollup;
+      const labelEl = document.getElementById('olap-op-label');
+      const sqlEl = document.getElementById('olap-sql-display');
+      const descEl = document.getElementById('olap-desc');
+      const theadEl = document.getElementById('olap-table-head');
+      const tbodyEl = document.getElementById('olap-table-body');
+
+      // Update button styling
+      const btns = ['rollup', 'drill', 'slice', 'dice', 'pivot', 'cube'];
+      btns.forEach(b => {
+        const btn = document.getElementById(`btn-olap-${b}`);
+        if (btn) {
+          if (b === opKey) {
+            btn.className = 'px-2.5 py-1 rounded-lg font-semibold bg-white text-teal-800 shadow-sm';
+          } else {
+            btn.className = 'px-2.5 py-1 rounded-lg font-semibold text-slate-600 hover:text-slate-900';
+          }
+        }
+      });
+
+      if (labelEl) labelEl.textContent = op.label;
+      if (sqlEl) sqlEl.textContent = op.sql;
+      if (descEl) descEl.innerHTML = `<strong>Domain Interpretation:</strong> ${op.desc}`;
+
+      if (theadEl) {
+        theadEl.innerHTML = op.headers.map((h, i) => `
+          <th class="py-2.5 px-3 ${i >= 2 ? 'text-right' : 'text-left'}">${h}</th>
+        `).join('');
+      }
+
+      if (tbodyEl) {
+        tbodyEl.innerHTML = op.rows.map(row => `
+          <tr class="hover:bg-slate-50 transition-colors">
+            ${row.map((val, idx) => `
+              <td class="py-2 px-3 ${idx >= 2 ? 'text-right font-semibold text-slate-800' : 'text-slate-700'}">
+                ${val}
+              </td>
+            `).join('')}
+          </tr>
+        `).join('');
+      }
+    }
+
+    // Benchmark Chart (Chart.js)
+    function initBenchmarkChart() {
+      const canvas = document.getElementById('benchmarkChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const q = benchmarkData.q1;
+
+      benchmarkChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: q.rows,
+          datasets: [
+            {
+              label: 'Centralised PostgreSQL (ms)',
+              data: q.centralized,
+              backgroundColor: 'rgba(217, 119, 6, 0.75)',
+              borderColor: '#d97706',
+              borderWidth: 1.5,
+              borderRadius: 6
+            },
+            {
+              label: 'Distributed Citus 8-Node (ms)',
+              data: q.distributed,
+              backgroundColor: 'rgba(15, 124, 138, 0.85)',
+              borderColor: '#0f7c8a',
+              borderWidth: 1.5,
+              borderRadius: 6
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                boxWidth: 12,
+                font: { family: "'Figtree', sans-serif", size: 11, weight: '600' },
+                color: '#334155'
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(ctx) {
+                  return ` ${ctx.dataset.label}: ${ctx.raw} ms`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'Record Volume (Dataset Scale)',
+                font: { family: "'Figtree', sans-serif", size: 11 }
+              },
+              grid: { display: false }
+            },
+            y: {
+              title: {
+                display: true,
+                text: 'Query Latency (Milliseconds)',
+                font: { family: "'Figtree', sans-serif", size: 11 }
+              },
+              grid: { color: 'rgba(226, 232, 240, 0.7)' },
+              ticks: { font: { family: "'JetBrains Mono', monospace" } }
+            }
+          }
+        }
+      });
+    }
+
+    function updateBenchmarkChart() {
+      const select = document.getElementById('benchmark-query-select');
+      if (!select || !benchmarkChartInstance) return;
+      const qKey = select.value;
+      const q = benchmarkData[qKey] || benchmarkData.q1;
+
+      benchmarkChartInstance.data.datasets[0].data = q.centralized;
+      benchmarkChartInstance.data.datasets[1].data = q.distributed;
+      benchmarkChartInstance.update();
+    }
+
+    // Real-Time Replay Simulation Ticker
+    function startReplaySimulation() {
+      if (streamInterval) clearInterval(streamInterval);
+      const sites = ['USGS-01578310', 'USGS-01576000', 'EPA-CB-00412', 'USGS-01594440', 'USGS-01646500'];
+      const siteNames = [
+        'Susquehanna at Conowingo',
+        'Chesapeake Middle Basin',
+        'Potomac Estuary Station',
+        'Patuxent River at Bowie',
+        'Potomac at Chain Bridge'
+      ];
+
+      streamInterval = setInterval(() => {
+        if (!isReplayStreaming) return;
+        const temp = (20.5 + Math.random() * 2.8).toFixed(1);
+        const doVal = (6.8 + (Math.random() * 1.2 - 0.4)).toFixed(2);
+        const alerts = Math.floor(10 + Math.random() * 10);
+        const idx = Math.floor(Math.random() * sites.length);
+
+        const tempEl = document.getElementById('stream-temp');
+        const doEl = document.getElementById('stream-do');
+        const alertsEl = document.getElementById('stream-alerts');
+        const siteEl = document.getElementById('stream-site');
+
+        if (tempEl) tempEl.textContent = `${temp} °C`;
+        if (doEl) doEl.textContent = `${doVal} mg/L`;
+        if (alertsEl) alertsEl.textContent = `${alerts} Alerts / min`;
+        if (siteEl) siteEl.textContent = `${sites[idx]}`;
+      }, 1400);
+    }
+
+    function toggleReplayStream() {
+      isReplayStreaming = !isReplayStreaming;
+      const btnText = document.getElementById('replay-btn-text');
+      const icon = document.getElementById('replay-icon');
+      if (btnText && icon) {
+        if (isReplayStreaming) {
+          btnText.textContent = 'Pause Stream';
+          icon.setAttribute('data-lucide', 'pause');
+        } else {
+          btnText.textContent = 'Resume Stream';
+          icon.setAttribute('data-lucide', 'play');
+        }
+        if (window.lucide) window.lucide.createIcons();
+      }
+    }
+
+    // -------------------------------------------------------------
+    // TAB 4: PREDICTIVE ML SIMULATOR & CIRCULAR GAUGE METER
+    // -------------------------------------------------------------
+    // Formula derived from trained Multiple Linear Regression:
+    // DO = 14.12 - 0.285*Temp + 0.382*pH - 0.048*Turbidity - 0.0021*Conductivity - 0.142*Nitrate
+    function calculatePredictedDO(temp, ph, turb, cond, nitrate) {
+      let doVal = 14.12 - (0.285 * temp) + (0.382 * ph) - (0.048 * turb) - (0.0021 * cond) - (0.142 * nitrate);
+      if (doVal < 0.2) doVal = 0.2;
+      if (doVal > 14.5) doVal = 14.5;
+      return parseFloat(doVal.toFixed(2));
+    }
+
+    function updatePredictiveModel() {
+      const temp = parseFloat(document.getElementById('slider-temp').value);
+      const ph = parseFloat(document.getElementById('slider-ph').value);
+      const turb = parseFloat(document.getElementById('slider-turbidity').value);
+      const cond = parseFloat(document.getElementById('slider-conductivity').value);
+      const nitrate = parseFloat(document.getElementById('slider-nitrate').value);
+
+      // Update slider readout text
+      document.getElementById('val-temp').textContent = temp.toFixed(1);
+      document.getElementById('val-ph').textContent = ph.toFixed(1);
+      document.getElementById('val-turbidity').textContent = turb.toFixed(1);
+      document.getElementById('val-conductivity').textContent = cond.toFixed(0);
+      document.getElementById('val-nitrate').textContent = nitrate.toFixed(1);
+
+      const doPred = calculatePredictedDO(temp, ph, turb, cond, nitrate);
+      updateCircularGauge(doPred);
+    }
+
+    function updateCircularGauge(value) {
+      const gaugeArc = document.getElementById('gaugeArc');
+      const valueText = document.getElementById('gaugeValueText');
+      const statusChip = document.getElementById('gaugeStatusChip');
+      const ratingEl = document.getElementById('risk-rating');
+      const explanationEl = document.getElementById('risk-explanation');
+
+      if (!gaugeArc || !valueText || !statusChip) return;
+
+      valueText.textContent = value.toFixed(2);
+
+      // Gauge arc circumference is 2 * PI * 78 = ~490.08
+      const maxDO = 14.0;
+      const fraction = Math.min(Math.max(value / maxDO, 0.05), 1.0);
+      const offset = 490 - (490 * fraction * 0.75); // 270 degree sweep
+      gaugeArc.style.strokeDashoffset = offset;
+
+      // Color transitions based on prompt thresholds:
+      // Red < 4.0 mg/L Hypoxic
+      // Amber 4.0 - 6.5 mg/L Stress
+      // Emerald > 6.5 mg/L Baseline
+      if (value < 4.0) {
+        gaugeArc.style.stroke = '#dc2626'; // Red
+        valueText.className = 'text-4xl font-extrabold font-mono text-red-600 mt-0.5 tracking-tight';
+        statusChip.className = 'chip chip-critical text-[0.68rem] mt-2';
+        statusChip.textContent = 'Hypoxic Crisis (<4.0)';
+        if (ratingEl) {
+          ratingEl.textContent = 'Critical Anoxic Danger';
+          ratingEl.className = 'font-mono text-red-700 font-bold';
+        }
+        if (explanationEl) {
+          explanationEl.textContent = 'Severe dissolved oxygen depletion triggers high mortality among fish species, suppresses benthic invertebrate respiration, and breaches EPA Clean Water Act standards.';
+        }
+      } else if (value <= 6.5) {
+        gaugeArc.style.stroke = '#d97706'; // Amber
+        valueText.className = 'text-4xl font-extrabold font-mono text-amber-600 mt-0.5 tracking-tight';
+        statusChip.className = 'chip chip-warning text-[0.68rem] mt-2';
+        statusChip.textContent = 'Aquatic Stress (4.0–6.5)';
+        if (ratingEl) {
+          ratingEl.textContent = 'Sub-optimal Stress Zone';
+          ratingEl.className = 'font-mono text-amber-700 font-bold';
+        }
+        if (explanationEl) {
+          explanationEl.textContent = 'Oxygen levels exhibit biological stress; coldwater salmonids and sensitive larvae suffer reduced feeding rates and delayed developmental growth.';
+        }
+      } else {
+        gaugeArc.style.stroke = '#10b981'; // Emerald
+        valueText.className = 'text-4xl font-extrabold font-mono text-emerald-600 mt-0.5 tracking-tight';
+        statusChip.className = 'chip chip-positive text-[0.68rem] mt-2';
+        statusChip.textContent = 'Baseline Healthy (>6.5)';
+        if (ratingEl) {
+          ratingEl.textContent = 'Optimal Habitat';
+          ratingEl.className = 'font-mono text-emerald-700 font-bold';
+        }
+        if (explanationEl) {
+          explanationEl.textContent = 'Dissolved oxygen levels support thriving aquatic biodiversity, sensitive fish populations, and vigorous biological self-purification capacity.';
+        }
+      }
+    }
+
+    function resetPredictorSliders() {
+      document.getElementById('slider-temp').value = 21.5;
+      document.getElementById('slider-ph').value = 7.4;
+      document.getElementById('slider-turbidity').value = 12.0;
+      document.getElementById('slider-conductivity').value = 380;
+      document.getElementById('slider-nitrate').value = 3.2;
+      updatePredictiveModel();
+    }
+
+    // Association Rules Mining Renderer
+    function renderAssociationRules(minLift = 1.0) {
+      const tbody = document.getElementById('association-rules-tbody');
+      const countLabel = document.getElementById('rules-count-label');
+      if (!tbody) return;
+
+      const filtered = associationRules.filter(r => r.lift >= minLift);
+      if (countLabel) countLabel.textContent = `Showing ${filtered.length} Rules`;
+
+      tbody.innerHTML = filtered.map(rule => `
+        <tr class="hover:bg-slate-50 transition-colors">
+          <td class="py-2 px-2.5 text-slate-800 font-medium">
+            <span class="text-teal-900">${rule.antecedent}</span> &rarr; <span class="text-indigo-800 font-semibold">${rule.consequent}</span>
+          </td>
+          <td class="py-2 px-2 text-right text-slate-600 font-mono">${rule.support}</td>
+          <td class="py-2 px-2 text-right text-slate-800 font-mono font-semibold">${rule.confidence}</td>
+          <td class="py-2 px-2 text-right font-mono font-bold ${rule.lift >= 3.0 ? 'text-teal-800' : 'text-amber-700'}">
+            ${rule.lift.toFixed(2)}&times;
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function filterAssociationRules() {
+      const select = document.getElementById('rule-filter-lift');
+      if (!select) return;
+      const minLift = parseFloat(select.value) || 1.0;
+      renderAssociationRules(minLift);
+    }
+
+    // -------------------------------------------------------------
+    // INITIALIZATION & LIFECYCLE
+    // -------------------------------------------------------------
+    document.addEventListener('DOMContentLoaded', function() {
+      // 1. Initialise Lucide icons
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+
+      // 2. Render Tab 1 visualisations
+      initLongitudinalChart('DO');
+      initLocationTypeChart();
+      renderAccordionFindings();
+
+      // 3. Render Tab 2 Schema details
+      selectSchemaElement('fact');
+
+      // 4. Render Tab 3 OLAP defaults & benchmarks
+      runOlapOp('rollup');
+      initBenchmarkChart();
+      startReplaySimulation();
+
+      // 5. Render Tab 4 Predictive Gauge & Rules
+      updatePredictiveModel();
+      renderAssociationRules(2.0);
+    });
+  </script>
+</body>
+</html>

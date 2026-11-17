@@ -1,0 +1,373 @@
+/* ============================================================
+   AquaStream Analytics — Global Design System
+   Water Quality Monitoring Data Warehouse & Predictive ML
+   ============================================================ */
+
+:root {
+  color-scheme: light;
+
+  /* Page and surfaces */
+  --background: #f8fafc;
+  --surface-glass: rgba(255, 255, 255, 0.92);
+  --surface-card: #ffffff;
+  --surface-container-low: #f1f7f8;
+  --surface-container: #e3f1f3;
+  --surface-container-high: #d5e9ec;
+
+  /* Text */
+  --on-surface: #0f172a;
+  --on-surface-variant: #475569;
+  --on-surface-muted: #64748b;
+
+  /* Rules */
+  --outline: #94a3b8;
+  --outline-variant: #e2e8f0;
+  --glass-border: rgba(226, 232, 240, 0.85);
+
+  /* Accents */
+  --primary: #0f7c8a;         /* Oceanic Deep Teal */
+  --primary-hover: #0a5f6b;
+  --primary-light: #e6f6f8;
+  --primary-tint: rgba(15, 124, 138, 0.12);
+  --secondary: #059669;       /* Emerald */
+  --secondary-light: #ecfdf5;
+  --tertiary: #0284c7;        /* Sky Blue */
+  --tertiary-light: #f0f9ff;
+  --warning: #d97706;         /* Amber */
+  --warning-light: #fffbeb;
+  --error: #dc2626;           /* Crimson */
+  --error-light: #fef2f2;
+  --positive: #059669;
+  --focus: #0f7c8a;
+
+  /* Data series */
+  --data-1: #0f7c8a;
+  --data-2: #10b981;
+  --data-3: #0284c7;
+  --data-4: #f59e0b;
+  --data-5: #6366f1;
+  --data-context: #cbd5e1;
+
+  /* Fonts */
+  --font-headline: 'Figtree', sans-serif;
+  --font-body: 'Atkinson Hyperlegible', sans-serif;
+  --font-label: 'Figtree', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Type scale */
+  --display-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
+  --headline-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+  --subhead-size: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+  --body-size: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
+  --label-size: 0.75rem;
+
+  /* Spacing scale */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+
+  /* Radii */
+  --rounded: 0.5rem;
+  --rounded-md: 0.625rem;
+  --rounded-lg: 11px;
+  --rounded-full: 9999px;
+
+  /* Glass & Diffusion Shadows */
+  --glass-blur: blur(12px);
+  --diffusion-shadow: 0 10px 25px -5px rgba(15, 124, 138, 0.07), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  --diffusion-shadow-lg: 0 20px 32px -8px rgba(15, 124, 138, 0.11), 0 10px 14px -5px rgba(0, 0, 0, 0.05);
+  --diffusion-shadow-sm: 0 4px 12px rgba(15, 124, 138, 0.05);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 120ms;
+  --dur-short: 200ms;
+  --dur-long: 400ms;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  overflow-x: clip;
+  margin: 0;
+  padding: 0;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--background);
+  background-image:
+    radial-gradient(at 0% 0%, rgba(15, 124, 138, 0.08) 0px, transparent 52%),
+    radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.07) 0px, transparent 48%),
+    radial-gradient(at 50% 45%, rgba(2, 132, 199, 0.04) 0px, transparent 60%),
+    radial-gradient(at 100% 100%, rgba(15, 124, 138, 0.06) 0px, transparent 55%),
+    radial-gradient(at 0% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%);
+  background-attachment: fixed;
+  font-family: var(--font-body);
+  color: var(--on-surface);
+  line-height: 1.6;
+}
+
+/* ---- Headings & Typography ---- */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-headline);
+  color: var(--on-surface);
+  letter-spacing: -0.015em;
+}
+
+.font-mono-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Glassmorphism Cards ---- */
+.glass-card {
+  background: var(--surface-glass);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-radius: var(--rounded-lg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--diffusion-shadow);
+  transition:
+    transform var(--dur-short) var(--ease-out),
+    box-shadow var(--dur-short) var(--ease-out),
+    border-color var(--dur-short) var(--ease-out);
+}
+
+.glass-card:hover {
+  box-shadow: var(--diffusion-shadow-lg);
+  border-color: rgba(15, 124, 138, 0.28);
+}
+
+/* ---- KPI Cards — Top Glowing Accent ---- */
+.kpi-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3.5px;
+  background: linear-gradient(90deg, #0f7c8a 0%, #10b981 50%, #0284c7 100%);
+  border-top-left-radius: var(--rounded-lg);
+  border-top-right-radius: var(--rounded-lg);
+}
+
+/* ---- Sticky Frosted Header ---- */
+.frosted-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 4px 20px -2px rgba(15, 124, 138, 0.05);
+}
+
+/* ---- Floating Pill Dock Navigation ---- */
+.floating-pill-dock-container {
+  position: sticky;
+  top: 76px;
+  z-index: 45;
+  padding: 0.5rem 0;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.pill-dock {
+  pointer-events: auto;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(203, 213, 225, 0.85);
+  border-radius: var(--rounded-full);
+  padding: 4px;
+  display: inline-flex;
+  gap: 4px;
+  box-shadow: 0 10px 25px -4px rgba(15, 124, 138, 0.12), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+}
+
+.pill-nav-btn {
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  padding: 0.5rem 1.15rem;
+  border-radius: var(--rounded-full);
+  color: var(--on-surface-variant);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all var(--dur-short) var(--ease-out);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  white-space: nowrap;
+}
+
+.pill-nav-btn:hover {
+  color: var(--primary);
+  background: rgba(15, 124, 138, 0.07);
+}
+
+.pill-nav-btn.active {
+  color: #ffffff;
+  background: linear-gradient(135deg, #0f7c8a 0%, #0d9488 100%);
+  box-shadow: 0 4px 12px rgba(15, 124, 138, 0.35);
+}
+
+/* ---- Status Chips ---- */
+.chip {
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 0.725rem;
+  line-height: 1.25;
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--rounded-full);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  letter-spacing: 0.02em;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  box-sizing: border-box;
+}
+
+.chip-positive {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.chip-warning {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.chip-critical {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.chip-neutral {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.chip-ocean {
+  background: #e6f6f8;
+  color: #0f7c8a;
+  border: 1px solid #b5e4ea;
+}
+
+/* ---- Accordion transitions ---- */
+/* BUG FIX: Increased max-height from 1200px to 2400px to prevent content clipping */
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition:
+    max-height var(--dur-long) var(--ease-out),
+    opacity var(--dur-short) var(--ease-out);
+  opacity: 0;
+}
+
+.accordion-item.expanded .accordion-content {
+  max-height: 2400px;
+  opacity: 1;
+}
+
+.accordion-chevron {
+  transition: transform var(--dur-short) var(--ease-out);
+}
+
+.accordion-item.expanded .accordion-chevron {
+  transform: rotate(180deg);
+}
+
+/* ---- Range Slider ---- */
+input[type=range] {
+  accent-color: #0f7c8a;
+  cursor: pointer;
+}
+
+/* ---- Chart Container Standardisation ---- */
+.chart-container-lg {
+  position: relative;
+  width: 100%;
+  min-height: 380px;
+  height: 380px;
+}
+
+.chart-container-md {
+  position: relative;
+  width: 100%;
+  min-height: 280px;
+  height: 280px;
+}
+
+/* ---- Interactive Schema Node ---- */
+.schema-node {
+  transition: all var(--dur-short) var(--ease-out);
+  cursor: pointer;
+}
+
+.schema-node:hover {
+  transform: translateY(-2px);
+  filter: drop-shadow(0 8px 16px rgba(15, 124, 138, 0.2));
+}
+
+/* ---- Bézier Connector Links ---- */
+.bezier-link {
+  stroke: #cbd5e1;
+  stroke-width: 2.2;
+  fill: none;
+  transition:
+    stroke var(--dur-short) var(--ease-out),
+    stroke-width var(--dur-short) var(--ease-out),
+    stroke-dasharray var(--dur-short) var(--ease-out);
+}
+
+.bezier-link.active-link {
+  stroke: #0f7c8a;
+  stroke-width: 3.8;
+  stroke-dasharray: 6 3;
+  animation: dashmove 1.5s linear infinite;
+}
+
+@keyframes dashmove {
+  to {
+    stroke-dashoffset: -18;
+  }
+}
+
+/* ---- Focus & Accessibility ---- */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* ---- Reduced Motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
